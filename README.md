@@ -28,7 +28,7 @@ Using the calculator is pretty straight forward, simply hop in game, check your 
 
 Then you can use the dropdown menu at the bottom to select which drill you want to buy, and input how many you want to buy, and the calculator will tell you how long it will take for you to get those drills!
 
-<img width="524" height="686" alt="Screenshot 2026-04-10 140056" src="https://github.com/user-attachments/assets/cb601580-4ff8-496d-9bfb-5762f414676b" />
+<img width="571" height="780" alt="Screenshot 2026-04-10 140056" src="https://github.com/user-attachments/assets/96d83ddf-95d8-45a3-a731-c2c4762f06e2" />
 
 ## Notes
 This project is open to pull-requests, feel free to submit features you'd like to see! I'm also willing to take suggestions in the Issues tab or in the [Oil Empire Discord](https://discord.com/invite/hdYnSvD5JV) server.
