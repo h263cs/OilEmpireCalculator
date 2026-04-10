@@ -9,7 +9,7 @@ Head to the releases page and download the latest executable file, or build it f
  - Golang *1.26.1 or later*
  - Clang *21.1.8 or later*
 
-To build from source, simply download the source code from the repository, and run ./build.sh, or run this Powershell command:
+To build from source, simply download the source code from the repository, run ```go mod tidy``` to install all the dependencies, and finally run ./build.sh. *Alternatively* run this Powershell command to build the executable:
 ```powershell
 $env:CC="clang"
 $env:CXX="clang++"
