@@ -24,11 +24,23 @@ type Config struct {
 	RatePerSecond float64 `json:"rate_per_second"`
 	BoostPercent  float64 `json:"boost_percent"`
 	CashPerUnit   float64 `json:"cash_per_unit"`
+	CurrentCash   float64 `json:"current_cash"`
 }
 
 func configPath() string {
-	exe, _ := os.Executable()
-	return filepath.Join(filepath.Dir(exe), configFile)
+	exe, err := os.Executable()
+	if err != nil {
+		wd, _ := os.Getwd()
+		return filepath.Join(wd, configFile)
+	}
+	dir := filepath.Dir(exe)
+	if strings.Contains(dir, "go-build") ||
+		strings.Contains(dir, "tmp") ||
+		strings.Contains(dir, "Temp") {
+		wd, _ := os.Getwd()
+		return filepath.Join(wd, configFile)
+	}
+	return filepath.Join(dir, configFile)
 }
 
 func loadConfig() Config {
@@ -46,10 +58,6 @@ func saveConfig(cfg Config) {
 	_ = os.WriteFile(configPath(), data, 0644)
 }
 
-func persist(cfg *Config) {
-	saveConfig(*cfg)
-}
-
 // ---------------------------------------------------------------------------
 // FORMATTING
 // ---------------------------------------------------------------------------
@@ -63,22 +71,6 @@ func trim(v float64) string {
 		s = s[:len(s)-1]
 	}
 	return s
-}
-
-func formatDuration(hours float64) string {
-	totalSeconds := int(hours * 3600)
-
-	h := totalSeconds / 3600
-	m := (totalSeconds % 3600) / 60
-	s := totalSeconds % 60
-
-	if h > 0 {
-		return fmt.Sprintf("%dh %dm %ds", h, m, s)
-	}
-	if m > 0 {
-		return fmt.Sprintf("%dm %ds", m, s)
-	}
-	return fmt.Sprintf("%ds", s)
 }
 
 func formatLarge(v float64) string {
@@ -96,8 +88,51 @@ func formatLarge(v float64) string {
 	}
 }
 
+// formatWithCommas formats a float as a whole number with comma separators.
+// e.g. 1234567.0 → "1,234,567"
+func formatWithCommas(v float64) string {
+	s := fmt.Sprintf("%.0f", v)
+	n := len(s)
+	if n <= 3 {
+		return s
+	}
+	var result []byte
+	for i, c := range s {
+		if i > 0 && (n-i)%3 == 0 {
+			result = append(result, ',')
+		}
+		result = append(result, byte(c))
+	}
+	return string(result)
+}
+
+// stripCommas removes commas so a comma-formatted string can be parsed.
+func stripCommas(s string) string {
+	return strings.ReplaceAll(s, ",", "")
+}
+
+func formatDuration(hours float64) string {
+	if hours <= 0 {
+		return "—"
+	}
+	totalSeconds := int(hours * 3600)
+	h := totalSeconds / 3600
+	m := (totalSeconds % 3600) / 60
+	s := totalSeconds % 60
+	if h > 0 {
+		return fmt.Sprintf("%dh %dm %ds", h, m, s)
+	}
+	if m > 0 {
+		return fmt.Sprintf("%dm %ds", m, s)
+	}
+	return fmt.Sprintf("%ds", s)
+}
+
+// parseLargeNumber accepts plain numbers, comma-separated numbers, or
+// suffixed shorthand like 1.5M, 2B, 500K, 3T.
 func parseLargeNumber(input string) (float64, error) {
 	input = strings.TrimSpace(strings.ToLower(input))
+	input = stripCommas(input)
 
 	mult := 1.0
 	switch {
@@ -161,14 +196,8 @@ var drills = []Drill{
 func statRow(key string, value *widget.Label) *fyne.Container {
 	keyLabel := widget.NewLabel(key)
 	keyLabel.Importance = widget.LowImportance
-
 	value.Importance = widget.HighImportance
-
-	return container.NewGridWithColumns(
-		2,
-		keyLabel,
-		value,
-	)
+	return container.NewGridWithColumns(2, keyLabel, value)
 }
 
 // ---------------------------------------------------------------------------
@@ -187,16 +216,20 @@ func main() {
 
 	a := app.New()
 	w := a.NewWindow("Oil Empire Calculator")
-	w.Resize(fyne.NewSize(430, 650))
+	w.Resize(fyne.NewSize(430, 800))
 
 	cashPerUnit := cfg.CashPerUnit
 	boostPercent := cfg.BoostPercent
 	boostMult := boostPercent / 100
 
-	// INPUTS
+	// ── Inputs ───────────────────────────────────────────────────────────────
+
+	// Rate entry: accepts plain numbers or comma-separated, no forced formatting
 	rateEntry := widget.NewEntry()
-	rateEntry.SetText(strconv.FormatFloat(cfg.RatePerSecond, 'f', -1, 64))
-	rateEntry.SetPlaceHolder("e.g. 30000")
+	rateEntry.SetPlaceHolder("e.g. 30000 or 30,000")
+	if cfg.RatePerSecond > 0 {
+		rateEntry.SetText(formatWithCommas(cfg.RatePerSecond))
+	}
 
 	gasEntry := widget.NewEntry()
 	gasEntry.SetPlaceHolder("e.g. 100k / 1.5M / 2B")
@@ -204,15 +237,29 @@ func main() {
 	countEntry := widget.NewEntry()
 	countEntry.SetPlaceHolder("e.g. 10")
 
+	// Current cash — lives in the rate card, offsets all time calculations
+	currentCashEntry := widget.NewEntry()
+	currentCashEntry.SetPlaceHolder("e.g. 500K / 1.2B (optional)")
+	if cfg.CurrentCash > 0 {
+		currentCashEntry.SetText(formatLarge(cfg.CurrentCash))
+	}
+
+	// Cash goal — how long until you accumulate this much cash
+	cashGoalEntry := widget.NewEntry()
+	cashGoalEntry.SetPlaceHolder("e.g. 1B / 27.5B")
+
 	saveStatus := widget.NewLabel("")
 
-	// OUTPUT LABELS
+	// ── Output labels ────────────────────────────────────────────────────────
+
 	petrolLabel := widget.NewLabel("—")
 	cashHrLabel := widget.NewLabel("—")
-	timeLabel := widget.NewLabel("—")
-	gasLabel := widget.NewLabel("—")
+	timeLabel   := widget.NewLabel("—")
+	gasLabel    := widget.NewLabel("—")
+	goalLabel   := widget.NewLabel("—")
 
-	// SLIDERS
+	// ── Sliders ──────────────────────────────────────────────────────────────
+
 	cashSlider := widget.NewSlider(1, 15)
 	cashSlider.SetValue(cashPerUnit)
 	cashValueLabel := widget.NewLabel(fmt.Sprintf("$%.0f", cashPerUnit))
@@ -222,7 +269,8 @@ func main() {
 	boostSlider.SetValue(boostPercent)
 	boostValueLabel := widget.NewLabel(fmt.Sprintf("%.0f%%", boostPercent))
 
-	// DRILLS
+	// ── Drill selector ───────────────────────────────────────────────────────
+
 	drillSelect := widget.NewSelect([]string{}, nil)
 	for _, d := range drills {
 		drillSelect.Options = append(drillSelect.Options, d.Name)
@@ -238,40 +286,74 @@ func main() {
 		return drills[0]
 	}
 
-	// UPDATE
+	// ── Core update logic ─────────────────────────────────────────────────────
+
+	getCurrentCash := func() float64 {
+		v, err := parseLargeNumber(currentCashEntry.Text)
+		if err != nil {
+			return 0
+		}
+		return v
+	}
+
 	update := func() {
-		rate, err := strconv.ParseFloat(rateEntry.Text, 64)
+		rate, err := parseLargeNumber(stripCommas(rateEntry.Text))
 		if err != nil || rate <= 0 {
 			return
 		}
 
-		petrol := rate * 3600
-		cash := petrol * cashPerUnit * boostMult
+		petrolPerHr := rate * 3600
+		cashPerHr := petrolPerHr * cashPerUnit * boostMult
 
-		petrolLabel.SetText(formatLarge(petrol))
-		cashHrLabel.SetText("$" + formatLarge(cash))
+		petrolLabel.SetText(formatLarge(petrolPerHr))
+		cashHrLabel.SetText("$" + formatLarge(cashPerHr))
 
+		wallet := getCurrentCash()
+
+		// Drill: time to afford N of selected drill
 		count, err := strconv.Atoi(countEntry.Text)
-		if err == nil && count > 0 {
-			total := getDrill().Price * float64(count)
-			timeLabel.SetText(formatDuration(total / cash))
+		if err == nil && count > 0 && cashPerHr > 0 {
+			totalCost := getDrill().Price * float64(count)
+			remaining := totalCost - wallet
+			if remaining <= 0 {
+				timeLabel.SetText("Already affordable!")
+			} else {
+				timeLabel.SetText(formatDuration(remaining / cashPerHr))
+			}
+		} else {
+			timeLabel.SetText("—")
+		}
+
+		// Cash goal: time to reach target cash amount
+		goal, err := parseLargeNumber(cashGoalEntry.Text)
+		if err == nil && goal > 0 && cashPerHr > 0 {
+			remaining := goal - wallet
+			if remaining <= 0 {
+				goalLabel.SetText("Already reached!")
+			} else {
+				goalLabel.SetText(formatDuration(remaining / cashPerHr))
+			}
+		} else {
+			goalLabel.SetText("—")
 		}
 	}
 
 	updateGas := func() {
 		gas, err := parseLargeNumber(gasEntry.Text)
 		if err != nil {
+			gasLabel.SetText("—")
 			return
 		}
 		gasLabel.SetText("$" + formatLarge(gas*cashPerUnit*boostMult))
 	}
 
-	// EVENTS
+	// ── Wire up events ────────────────────────────────────────────────────────
+
 	cashSlider.OnChanged = func(v float64) {
 		cashPerUnit = v
 		cashValueLabel.SetText(fmt.Sprintf("$%.0f", v))
 		cfg.CashPerUnit = v
-		persist(&cfg)
+		saveConfig(cfg)
 		update()
 		updateGas()
 	}
@@ -287,73 +369,78 @@ func main() {
 	}
 
 	rateEntry.OnChanged = func(string) { update() }
+
 	countEntry.OnChanged = func(string) { update() }
 	gasEntry.OnChanged = func(string) { updateGas() }
 	drillSelect.OnChanged = func(string) { update() }
+	currentCashEntry.OnChanged = func(string) {
+		if v, err := parseLargeNumber(currentCashEntry.Text); err == nil {
+			cfg.CurrentCash = v
+			saveConfig(cfg)
+		}
+		update()
+	}
+	cashGoalEntry.OnChanged = func(string) { update() }
 
-	saveBtn := widget.NewButton("Save Rate", func() {
-		rate, err := strconv.ParseFloat(rateEntry.Text, 64)
-		if err != nil {
-			saveStatus.SetText("invalid")
+	saveBtn := widget.NewButton("Save Config", func() {
+		rate, err := parseLargeNumber(stripCommas(rateEntry.Text))
+		if err != nil || rate <= 0 {
+			saveStatus.SetText("⚠ Invalid rate")
 			return
 		}
 		cfg.RatePerSecond = rate
+		if v, err := parseLargeNumber(currentCashEntry.Text); err == nil {
+			cfg.CurrentCash = v
+		}
 		saveConfig(cfg)
-		saveStatus.SetText("✓ saved")
+		saveStatus.SetText("✓ Saved")
 	})
 
-	// UI
-	statsCard := widget.NewCard(
-		"📊 Stats",
-		"",
-		container.NewVBox(
-			widget.NewLabel("Cash per Unit"),
-			cashSlider,
-			cashValueLabel,
+	// ── Layout ────────────────────────────────────────────────────────────────
 
-			widget.NewLabel("Boost"),
-			boostSlider,
-			boostValueLabel,
+	rateCard := widget.NewCard("⛽ Rate", "", container.NewVBox(
+		rateEntry,
+		widget.NewSeparator(),
+		widget.NewLabel("Current Cash (optional)"),
+		currentCashEntry,
+		saveBtn,
+		saveStatus,
+	))
 
-			statRow("Petrol/hr:", petrolLabel),
-			statRow("Cash/hr:", cashHrLabel),
-		),
-	)
+	statsCard := widget.NewCard("📊 Stats", "", container.NewVBox(
+		widget.NewLabel("Cash per Unit"),
+		cashSlider,
+		cashValueLabel,
+		widget.NewLabel("Boost"),
+		boostSlider,
+		boostValueLabel,
+		statRow("Petrol/hr:", petrolLabel),
+		statRow("Cash/hr:", cashHrLabel),
+	))
 
-	drillCard := widget.NewCard(
-		"⛏ Drills",
-		"",
-		container.NewVBox(
-			drillSelect,
-			countEntry,
-			statRow("Time to afford:", timeLabel),
-		),
-	)
+	drillCard := widget.NewCard("⛏ Drills", "", container.NewVBox(
+		drillSelect,
+		countEntry,
+		statRow("Time to afford:", timeLabel),
+	))
 
-	gasCard := widget.NewCard(
-		"🛢 Gas",
-		"",
-		container.NewVBox(
-			gasEntry,
-			statRow("Total Profit:", gasLabel),
-		),
-	)
+	gasCard := widget.NewCard("🛢 Gas", "", container.NewVBox(
+		gasEntry,
+		statRow("Total Profit:", gasLabel),
+	))
 
-	rateCard := widget.NewCard(
-		"⛽ Rate",
-		"",
-		container.NewVBox(
-			rateEntry,
-			saveBtn,
-			saveStatus,
-		),
-	)
+	goalCard := widget.NewCard("🎯 Cash Goal", "", container.NewVBox(
+		widget.NewLabel("Goal Amount"),
+		cashGoalEntry,
+		statRow("Time to goal:", goalLabel),
+	))
 
 	w.SetContent(container.NewVScroll(container.NewVBox(
 		rateCard,
 		statsCard,
 		drillCard,
 		gasCard,
+		goalCard,
 	)))
 
 	update()
