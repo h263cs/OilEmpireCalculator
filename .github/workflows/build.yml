@@ -47,9 +47,7 @@ jobs:
         path: builds/${{ matrix.output }}
 
   release:
-    needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     steps:
     - uses: actions/checkout@v4
 
