@@ -347,7 +347,7 @@ func main() {
 		gasLabel.SetText("$" + formatLarge(gas*cashPerUnit*boostMult))
 	}
 
-	// ── Wire up events ────────────────────────────────────────────────────────
+	// ── Wire up events ───────────────────────────────────────────────────────
 
 	cashSlider.OnChanged = func(v float64) {
 		cashPerUnit = v
