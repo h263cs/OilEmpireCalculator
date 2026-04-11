@@ -1,24 +1,13 @@
-name: Multi-Platform Build
+name: Build and Release
 
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+    tags:
+      - 'v*'
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            goos: windows
-            goarch: amd64
-            output: oilempire.exe
-
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
 
@@ -29,43 +18,22 @@ jobs:
 
     - name: Build
       env:
-        GOOS: ${{ matrix.goos }}
-        GOARCH: ${{ matrix.goarch }}
-        CGO_ENABLED: ${{ matrix.goos == 'windows' && '1' || '0' }}
+        GOOS: windows
+        GOARCH: amd64
+        CGO_ENABLED: '1'
       run: |
-        mkdir -p builds
-        if [ "${{ matrix.goos }}" = "windows" ]; then
-          go build -ldflags "-H windowsgui" -o builds/${{ matrix.output }} .
-        else
-          go build -o builds/${{ matrix.output }} .
-        fi
-      shell: bash
+        mkdir builds
+        go build -ldflags "-H windowsgui" -o builds/oilempire.exe .
 
-    - name: Upload artifacts
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.goos }}-${{ matrix.goarch }}
-        path: builds/${{ matrix.output }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: dist
-        merge-multiple: true
+        name: oilempire-windows
+        path: builds/oilempire.exe
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/*
-        body_path: CHANGELOG.md
+        files: builds/oilempire.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
