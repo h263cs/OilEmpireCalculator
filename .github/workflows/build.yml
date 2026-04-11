@@ -16,24 +16,18 @@ jobs:
       with:
         go-version: '1.21'
 
-    - name: Build
-      env:
-        GOOS: windows
-        GOARCH: amd64
-        CGO_ENABLED: '1'
+    - name: Build with Clang
       run: |
-        mkdir builds
+        mkdir -p builds
+        $env:CC = "clang"
+        $env:CXX = "clang++"
+        $env:CGO_ENABLED = "1"
         go build -ldflags "-H windowsgui" -o builds/oilempire.exe .
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: oilempire-windows
-        path: builds/oilempire.exe
-
-    - name: Create Release
+    - name: Create Release Draft
       uses: softprops/action-gh-release@v1
       with:
         files: builds/oilempire.exe
+        draft: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
