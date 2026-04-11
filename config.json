@@ -1,5 +1,6 @@
 {
   "rate_per_second": 0,
   "boost_percent": 285,
-  "cash_per_unit": 15
+  "cash_per_unit": 15,
+  "current_cash": 0
 }
