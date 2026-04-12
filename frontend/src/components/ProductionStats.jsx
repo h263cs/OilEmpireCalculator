@@ -86,7 +86,7 @@ export const ProductionStats = ({
             <input 
               type="range" 
               min="100" 
-              max="285"
+              max="385"
               step="5"
               value={boost}
               onChange={(e) => setBoost(parseFloat(e.target.value))}
