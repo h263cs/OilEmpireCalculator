@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 const GRID_WIDTH = 15;
 const GRID_HEIGHT = 20;
 const CELL_SIZE = 30;
+const DRILL_PADDING = 4; // 4px padding around drills
 
 const DRILL_COLORS = {
   'Basic Drill': '#A9A9A9',
@@ -27,6 +28,19 @@ const DRILL_COLORS = {
   'Ruby Drill': '#E90052',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
+};
+
+const getDarkerColor = (hex) => {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = -30;
+  const usePound = true;
+  let R = (num >> 16) + amt;
+  let G = (num >> 8 & 0x00FF) + amt;
+  let B = (num & 0x0000FF) + amt;
+  R = R > 255 ? 255 : R < 0 ? 0 : R;
+  G = G > 255 ? 255 : G < 0 ? 0 : G;
+  B = B > 255 ? 255 : B < 0 ? 0 : B;
+  return (usePound ? "#" : "") + (0x1000000 + (R<16?0:1)*16777216 + (G<16?0:1)*65536 + (B<16?0:1)*256 + R*65536 + G*256 + B).toString(16).slice(1);
 };
 
 const getRowColor = (row) => {
@@ -360,7 +374,6 @@ export const LayoutDesigner = ({ drills }) => {
             <div className="bg-slate-700 rounded p-3 text-sm text-slate-300 mb-3">
               <p>Size: {displaySize.width}×{displaySize.height}</p>
               <p className="text-xs mt-1">Press <span className="bg-slate-600 px-1 rounded">R</span> to rotate</p>
-              {isRotated && <p className="text-yellow-400 mt-1">🔄 Rotated</p>}
             </div>
           </div>
 
@@ -474,38 +487,43 @@ export const LayoutDesigner = ({ drills }) => {
               <div
                 style={{
                   position: 'absolute',
-                  left: hoverPos.col * CELL_SIZE,
-                  top: hoverPos.row * CELL_SIZE,
-                  width: hoverPos.width * CELL_SIZE,
-                  height: hoverPos.height * CELL_SIZE,
+                  left: hoverPos.col * CELL_SIZE + DRILL_PADDING,
+                  top: hoverPos.row * CELL_SIZE + DRILL_PADDING,
+                  width: hoverPos.width * CELL_SIZE - (DRILL_PADDING * 2),
+                  height: hoverPos.height * CELL_SIZE - (DRILL_PADDING * 2),
                   backgroundColor: DRILL_COLORS[selectedDrill.Name] || '#8B4513',
                   border: '2px dashed #fff',
                   opacity: 0.5,
                   pointerEvents: 'none',
+                  boxSizing: 'border-box',
                 }}
               />
             )}
 
-            {placedItems.map(item => (
-              <div
-                key={item.id}
-                onMouseDown={(e) => handleItemMouseDown(e, item.id)}
-                onDoubleClick={(e) => handleItemDoubleClick(e, item.id)}
-                style={{
-                  position: 'absolute',
-                  left: item.col * CELL_SIZE,
-                  top: item.row * CELL_SIZE,
-                  width: item.width * CELL_SIZE,
-                  height: item.height * CELL_SIZE,
-                  backgroundColor: item.color,
-                  border: '2px solid #fff',
-                  cursor: draggingItem === item.id ? 'grabbing' : 'grab',
-                  opacity: draggingItem === item.id ? 0.8 : 1,
-                  zIndex: draggingItem === item.id ? 10 : 1,
-                }}
-                className="transition-opacity"
-              />
-            ))}
+            {placedItems.map(item => {
+              const borderColor = getDarkerColor(item.color);
+              return (
+                <div
+                  key={item.id}
+                  onMouseDown={(e) => handleItemMouseDown(e, item.id)}
+                  onDoubleClick={(e) => handleItemDoubleClick(e, item.id)}
+                  style={{
+                    position: 'absolute',
+                    left: item.col * CELL_SIZE + DRILL_PADDING,
+                    top: item.row * CELL_SIZE + DRILL_PADDING,
+                    width: item.width * CELL_SIZE - (DRILL_PADDING * 2),
+                    height: item.height * CELL_SIZE - (DRILL_PADDING * 2),
+                    backgroundColor: item.color,
+                    border: `2px solid ${borderColor}`,
+                    cursor: draggingItem === item.id ? 'grabbing' : 'grab',
+                    opacity: draggingItem === item.id ? 0.8 : 1,
+                    zIndex: draggingItem === item.id ? 10 : 1,
+                    boxSizing: 'border-box',
+                  }}
+                  className="transition-opacity"
+                />
+              );
+            })}
           </div>
         </div>
       </div>
