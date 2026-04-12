@@ -54,7 +54,7 @@ func (a *App) UpdateConfig(ratePerSecond, cashPerUnit, boostPercent, currentCash
 	a.config.RatePerSecond = ratePerSecond
 	a.config.CashPerUnit = cashPerUnit
 	a.config.BoostPercent = boostPercent
-	a.config.CurrentCash = currentCash
+	a.config.CurrentCashStr = formatLarge(currentCash)
 	return saveConfig(a.config)
 }
 
