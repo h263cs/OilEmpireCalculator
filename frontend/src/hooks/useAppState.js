@@ -19,8 +19,15 @@ export const useAppState = () => {
       try {
         const cfg = await GetConfig();
         setConfig(cfg);
-        setRate(cfg.rate_per_second.toString());
-        setCurrentCash(cfg.current_cash.toString());
+        
+        // Format rate with commas for display
+        const rateValue = cfg.rate_per_second || 0;
+        setRate(Number(rateValue).toLocaleString('en-US', { maximumFractionDigits: 0 }));
+        
+        // Use current_cash_str if it exists and is not empty, otherwise use empty string
+        const cashValue = cfg.current_cash_str || '';
+        setCurrentCash(cashValue);
+        
         setCashPerUnit(cfg.cash_per_unit);
         setBoost(cfg.boost_percent);
         
@@ -37,7 +44,7 @@ export const useAppState = () => {
         setReady(true);
       } catch (err) {
         console.error('Failed to load:', err);
-        setConfig({ rate_per_second: 0, cash_per_unit: 15, boost_percent: 285, current_cash: 0 });
+        setConfig({ rate_per_second: 0, cash_per_unit: 15, boost_percent: 285, current_cash_str: '' });
         setDrills([
           { Name: "Basic Drill", Price: 500 },
           { Name: "Strong Drill", Price: 1800 },
