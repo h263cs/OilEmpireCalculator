@@ -26,9 +26,11 @@ const DRILL_COLORS = {
   'Crystal Drill': '#BC13FE',
   'Diamond Drill': '#00D9FF',
   'Ruby Drill': '#E90052',
+  'Fusion Drill': '#FFB527',
   'Quantum Drill': '#6B5FFF',
+  'Mini Multi Drill': '#A9A9A9',
   'Mini Ruby Drill': '#800020',
-  'Fusion Drill': '#BBF527',
+  'Mini Diamond Drill': '#00D9FF',
   // Refineries
   'Basic Refinery': '#D4A574',
   'Enhanced Refinery': '#E8B76F',
@@ -70,14 +72,78 @@ const getRowColor = (row) => {
 };
 
 export const LayoutDesigner = ({ drills, refineries = [] }) => {
-  const [placedItems, setPlacedItems] = useState([]);
+  const [placedItems, setPlacedItems] = useState(() => {
+    // Auto-load layout from localStorage on component mount
+    const savedLayout = localStorage.getItem('oilEmpireLayout_slot_0');
+    if (savedLayout) {
+      try {
+        return JSON.parse(savedLayout);
+      } catch (e) {
+        console.error('Error loading layout:', e);
+        return [];
+      }
+    }
+    return [];
+  });
   const [selectedDrill, setSelectedDrill] = useState(drills[0] || null);
   const [draggingItem, setDraggingItem] = useState(null);
   const [isRotated, setIsRotated] = useState(false);
   const [hoverPos, setHoverPos] = useState(null);
   const [activeTab, setActiveTab] = useState('drills');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showSaveSlots, setShowSaveSlots] = useState(false);
+  const [saveSlots, setSaveSlots] = useState(() => {
+    const saved = localStorage.getItem('oilEmpireLayout_slots');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return Array(5).fill(null).map((_, i) => ({ name: `Slot ${i + 1}`, index: i, hasData: false }));
+      }
+    }
+    return Array(5).fill(null).map((_, i) => ({ name: `Slot ${i + 1}`, index: i, hasData: false }));
+  });
+  const [editingSlotIndex, setEditingSlotIndex] = useState(null);
+  const [editingName, setEditingName] = useState('');
+  const [currentSlot, setCurrentSlot] = useState(0);
+  const [savedFeedback, setSavedFeedback] = useState(false);
   const gridRef = useRef(null);
+
+  // Auto-save layout whenever placedItems changes
+  useEffect(() => {
+    const layoutData = JSON.stringify(placedItems);
+    localStorage.setItem(`oilEmpireLayout_slot_${currentSlot}`, layoutData);
+    
+    // Update slot metadata
+    const updatedSlots = [...saveSlots];
+    updatedSlots[currentSlot] = { ...updatedSlots[currentSlot], hasData: placedItems.length > 0 };
+    setSaveSlots(updatedSlots);
+    localStorage.setItem('oilEmpireLayout_slots', JSON.stringify(updatedSlots));
+  }, [placedItems, currentSlot]);
+
+  const loadSlot = (slotIndex) => {
+    const savedLayout = localStorage.getItem(`oilEmpireLayout_slot_${slotIndex}`);
+    setCurrentSlot(slotIndex);
+    if (savedLayout) {
+      try {
+        setPlacedItems(JSON.parse(savedLayout));
+      } catch (e) {
+        console.error('Error loading layout:', e);
+        setPlacedItems([]);
+      }
+    } else {
+      setPlacedItems([]);
+    }
+    setShowSaveSlots(false);
+  };
+
+  const renameSlot = (slotIndex, newName) => {
+    const updatedSlots = [...saveSlots];
+    updatedSlots[slotIndex] = { ...updatedSlots[slotIndex], name: newName };
+    setSaveSlots(updatedSlots);
+    localStorage.setItem('oilEmpireLayout_slots', JSON.stringify(updatedSlots));
+    setEditingSlotIndex(null);
+  };
 
   if (!selectedDrill) return <div>Loading drills...</div>;
 
@@ -266,29 +332,13 @@ export const LayoutDesigner = ({ drills, refineries = [] }) => {
     setDraggingItem(null);
   };
 
-  const deleteItem = (itemId) => {
-    setPlacedItems(placedItems.filter(item => item.id !== itemId));
-  };
-
   const clearLayout = () => {
     setPlacedItems([]);
     setShowClearConfirm(false);
   };
 
-  const saveLayout = () => {
-    const layoutData = JSON.stringify(placedItems);
-    localStorage.setItem('oilEmpireLayout', layoutData);
-  };
-
-  const loadLayout = () => {
-    const savedLayout = localStorage.getItem('oilEmpireLayout');
-    if (savedLayout) {
-      try {
-        setPlacedItems(JSON.parse(savedLayout));
-      } catch (e) {
-        console.error('Error loading layout:', e);
-      }
-    }
+  const deleteItem = (itemId) => {
+    setPlacedItems(placedItems.filter(item => item.id !== itemId));
   };
 
   const calculatePreBoostRate = () => {
@@ -365,18 +415,107 @@ export const LayoutDesigner = ({ drills, refineries = [] }) => {
           Clear Layout
         </button>
         <button
-          onClick={saveLayout}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+          onClick={() => {
+            const layoutData = JSON.stringify(placedItems);
+            localStorage.setItem(`oilEmpireLayout_slot_${currentSlot}`, layoutData);
+            setSavedFeedback(true);
+            setTimeout(() => setSavedFeedback(false), 3500);
+          }}
+          className={`px-4 py-2 rounded transition font-semibold text-white ${
+            savedFeedback 
+              ? 'bg-green-600 hover:bg-green-700' 
+              : 'bg-green-600 hover:bg-green-700'
+          }`}
         >
-          Save Layout
+          {savedFeedback ? '✅ Saved' : 'Save Layout'}
         </button>
         <button
-          onClick={loadLayout}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition"
+          onClick={() => setShowSaveSlots(true)}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded transition"
         >
-          Load Layout
+          📁 {saveSlots[currentSlot]?.name || `Slot ${currentSlot + 1}`}
         </button>
       </div>
+
+      {/* Save Slots Modal */}
+      {showSaveSlots && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          onClick={() => setShowSaveSlots(false)}
+        >
+          <div 
+            className="bg-slate-800 rounded-lg p-8 max-w-2xl border-2 border-slate-600 max-h-96 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-white mb-4">Save Slots</h2>
+            <div className="space-y-2">
+              {saveSlots.map((slot) => (
+                <div key={slot.index} className="flex items-center gap-2 bg-slate-700 p-3 rounded">
+                  {editingSlotIndex === slot.index ? (
+                    <>
+                      <input
+                        type="text"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') renameSlot(slot.index, editingName);
+                          if (e.key === 'Escape') setEditingSlotIndex(null);
+                        }}
+                        className="flex-1 bg-slate-600 border border-slate-500 rounded px-2 py-1 text-white"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => renameSlot(slot.index, editingName)}
+                        className="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-sm"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingSlotIndex(null)}
+                        className="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-sm"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => loadSlot(slot.index)}
+                        className={`flex-1 text-left px-3 py-2 rounded transition ${
+                          currentSlot === slot.index
+                            ? 'bg-blue-600 text-white'
+                            : slot.hasData
+                            ? 'bg-slate-600 hover:bg-slate-500 text-white'
+                            : 'bg-slate-700 text-slate-400'
+                        }`}
+                      >
+                        <span className="font-semibold">{slot.name}</span>
+                        {slot.hasData && <span className="text-xs ml-2">✓ Has data</span>}
+                        {currentSlot === slot.index && <span className="text-xs ml-2">(Current)</span>}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingSlotIndex(slot.index);
+                          setEditingName(slot.name);
+                        }}
+                        className="px-2 py-1 bg-slate-600 hover:bg-slate-500 rounded text-sm"
+                      >
+                        ✏️
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowSaveSlots(false)}
+              className="w-full mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {showClearConfirm && (
@@ -624,15 +763,15 @@ export const LayoutDesigner = ({ drills, refineries = [] }) => {
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-slate-700 rounded p-4">
             <p className="text-slate-400 text-sm mb-2">Pre-Boost Rate</p>
-            <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-blue-400">{calculatePreBoostRate()}</span></p>
+            <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-blue-400">{calculatePreBoostRate().toLocaleString()}</span></p>
           </div>
           <div className="bg-slate-700 rounded p-4">
             <p className="text-slate-400 text-sm mb-2">Post-Boost Rate</p>
-            <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-green-400">{calculateTotalRate()}</span></p>
+            <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-green-400">{calculateTotalRate().toLocaleString()}</span></p>
           </div>
           <div className="bg-slate-700 rounded p-4">
             <p className="text-slate-400 text-sm mb-2">Total Storage</p>
-            <p className="text-slate-300">Capacity: <span className="text-2xl font-bold text-orange-400">{calculateTotalStorage()}</span></p>
+            <p className="text-slate-300">Capacity: <span className="text-2xl font-bold text-orange-400">{calculateTotalStorage().toLocaleString()}</span></p>
           </div>
         </div>
       </div>
