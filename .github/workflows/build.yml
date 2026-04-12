@@ -1,34 +1,44 @@
 name: Build and Release
-
 on:
   push:
     tags:
       - 'v*'
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.21'
-
-    - name: Build
+    
+    - name: Set up Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
+    
+    - name: Install Wails
+      run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+    
+    - name: Install frontend dependencies
       run: |
-        mkdir -p builds
+        cd frontend
+        bun install
+        cd ..
+    
+    - name: Build with Wails
+      run: |
         $env:CGO_ENABLED = "1"
-        go build -ldflags "-H windowsgui" -o builds/oilempire.exe .
-
-    - name: Create Release Draft
+        wails build -platform windows/amd64 -o OilEmpireCalculator.exe
+    
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: builds/oilempire.exe
-        draft: true
+        files: build/bin/OilEmpireCalculator.exe
+        draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
