@@ -1,15 +1,62 @@
 package main
 
+import (
+	"encoding/json"
+	"os"
+)
+
 type DrillSize struct {
 	Width  int `json:"width"`
 	Height int `json:"height"`
 }
 
 type Drill struct {
-	Name string    `json:"Name"`
+	Name  string    `json:"Name"`
 	Price int       `json:"Price"`
 	Rate  int       `json:"rate"`
 	Size  DrillSize `json:"size"`
+}
+
+type GameData struct {
+	Drills    []map[string]interface{} `json:"drills"`
+	Refineries []map[string]interface{} `json:"refineries"`
+	Totems    []map[string]interface{} `json:"totems"`
+	Misc      []map[string]interface{} `json:"misc"`
+}
+
+var Drills = []Drill{}
+
+func init() {
+	LoadDrills()
+}
+
+func LoadDrills() error {
+	data, err := os.ReadFile("data.json")
+	if err != nil {
+		return err
+	}
+
+	var gameData GameData
+	err = json.Unmarshal(data, &gameData)
+	if err != nil {
+		return err
+	}
+
+	Drills = []Drill{}
+	for _, drillData := range gameData.Drills {
+		drill := Drill{
+			Name:  drillData["name"].(string),
+			Price: int(drillData["price"].(float64)),
+			Rate:  int(drillData["rate"].(float64)),
+			Size: DrillSize{
+				Width:  int(drillData["width"].(float64)),
+				Height: int(drillData["height"].(float64)),
+			},
+		}
+		Drills = append(Drills, drill)
+	}
+
+	return nil
 }
 
 func GetDrill(name string) Drill {
@@ -21,27 +68,13 @@ func GetDrill(name string) Drill {
 	return Drill{}
 }
 
-var Drills = []Drill{
-	{Name: "Basic Drill", Price: 500, Rate: 1, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Strong Drill", Price: 1800, Rate: 3, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Enhanced Drill", Price: 3600, Rate: 4, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Speed Drill", Price: 7200, Rate: 6, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Reinforced Drill", Price: 12000, Rate: 8, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Industrial Drill", Price: 20000, Rate: 10, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Double Industrial Drill", Price: 30000, Rate: 12, Size: DrillSize{Width: 2, Height: 1}},
-	{Name: "Turbo Drill", Price: 80000, Rate: 16, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Mega Drill", Price: 140000, Rate: 20, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Mega Emerald Drill", Price: 400000, Rate: 25, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Hell Drill", Price: 1225000, Rate: 35, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Plasma Drill", Price: 4500000, Rate: 50, Size: DrillSize{Width: 1, Height: 1}},
-	{Name: "Huge Long Drill", Price: 40000000, Rate: 220, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Mega Plasma Drill", Price: 95000000, Rate: 275, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Multi Drill", Price: 280000000, Rate: 350, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Lava Drill", Price: 900000000, Rate: 600, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Ice Plasma Drill", Price: 2400000000, Rate: 800, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Crystal Drill", Price: 9000000000, Rate: 1500, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Diamond Drill", Price: 27500000000, Rate: 2750, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Ruby Drill", Price: 85500000000, Rate: 4500, Size: DrillSize{Width: 2, Height: 2}},
-	{Name: "Quantum Drill", Price: 0, Rate: 175, Size: DrillSize{Width: 2, Height: 1}},
-	{Name: "Mini Ruby Drill", Price: 0, Rate: 67, Size: DrillSize{Width: 1, Height: 1}},
+func LoadGameData() (GameData, error) {
+	data, err := os.ReadFile("data.json")
+	if err != nil {
+		return GameData{}, err
+	}
+
+	var gameData GameData
+	err = json.Unmarshal(data, &gameData)
+	return gameData, err
 }

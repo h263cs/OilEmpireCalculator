@@ -1,0 +1,35 @@
+{
+  "drills": [
+    { "name": "Basic Drill", "price": 500, "rate": 1, "width": 1, "height": 1 },
+    { "name": "Strong Drill", "price": 1800, "rate": 3, "width": 1, "height": 1 },
+    { "name": "Enhanced Drill", "price": 3600, "rate": 4, "width": 1, "height": 1 },
+    { "name": "Speed Drill", "price": 7200, "rate": 6, "width": 1, "height": 1 },
+    { "name": "Reinforced Drill", "price": 12000, "rate": 8, "width": 1, "height": 1 },
+    { "name": "Industrial Drill", "price": 20000, "rate": 10, "width": 1, "height": 1 },
+    { "name": "Double Industrial Drill", "price": 30000, "rate": 12, "width": 2, "height": 1 },
+    { "name": "Turbo Drill", "price": 80000, "rate": 16, "width": 1, "height": 1 },
+    { "name": "Mega Drill", "price": 140000, "rate": 20, "width": 1, "height": 1 },
+    { "name": "Mega Emerald Drill", "price": 400000, "rate": 25, "width": 1, "height": 1 },
+    { "name": "Hell Drill", "price": 1225000, "rate": 35, "width": 1, "height": 1 },
+    { "name": "Plasma Drill", "price": 4500000, "rate": 50, "width": 1, "height": 1 },
+    { "name": "Huge Long Drill", "price": 40000000, "rate": 220, "width": 2, "height": 2 },
+    { "name": "Mega Plasma Drill", "price": 95000000, "rate": 275, "width": 2, "height": 2 },
+    { "name": "Multi Drill", "price": 280000000, "rate": 350, "width": 2, "height": 2 },
+    { "name": "Lava Drill", "price": 900000000, "rate": 600, "width": 2, "height": 2 },
+    { "name": "Ice Plasma Drill", "price": 2400000000, "rate": 800, "width": 2, "height": 2 },
+    { "name": "Crystal Drill", "price": 9000000000, "rate": 1500, "width": 2, "height": 2 },
+    { "name": "Diamond Drill", "price": 27500000000, "rate": 2750, "width": 2, "height": 2 },
+    { "name": "Ruby Drill", "price": 85500000000, "rate": 4500, "width": 2, "height": 2 },
+    { "name": "Quantum Drill", "price": 0, "rate": 175, "width": 2, "height": 1 },
+    { "name": "Mini Ruby Drill", "price": 0, "rate": 67, "width": 1, "height": 1 }
+  ],
+  "refineries": [
+    { "name": "Basic Refinery", "price": 1000, "efficiency": 1.1, "width": 2, "height": 2 }
+  ],
+  "totems": [
+    { "name": "Example Totem", "price": 5000, "effect": "boost", "width": 1, "height": 1 }
+  ],
+  "misc": [
+    { "name": "Example Item", "price": 2000, "effect": "utility", "width": 1, "height": 1 }
+  ]
+}
