@@ -35,7 +35,7 @@ Head to the [releases page](https://github.com/h263cs/OilEmpireCalculator/releas
 ## Building from Source
 *Pre-requisites:*
  - Golang *1.21 or later*
- - Node.js *18 or later* (or Bun for faster builds)
+ - Node.js *18 or later* (or Bun.js)
  - Wails CLI (`go install github.com/wailsapp/wails/v2/cmd/wails@latest`)
 
 To build from source:
