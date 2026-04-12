@@ -93,7 +93,7 @@ export namespace main {
 	    rate_per_second: number;
 	    boost_percent: number;
 	    cash_per_unit: number;
-	    current_cash: number;
+	    current_cash_str: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -104,7 +104,7 @@ export namespace main {
 	        this.rate_per_second = source["rate_per_second"];
 	        this.boost_percent = source["boost_percent"];
 	        this.cash_per_unit = source["cash_per_unit"];
-	        this.current_cash = source["current_cash"];
+	        this.current_cash_str = source["current_cash_str"];
 	    }
 	}
 	export class DrillSize {
