@@ -25,6 +25,8 @@ go.work.sum
 .env
 
 config.json
+output.txt
+
 build/bin
 node_modules
 frontend/dist
