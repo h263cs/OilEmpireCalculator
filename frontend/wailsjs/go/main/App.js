@@ -34,12 +34,20 @@ export function GetAllDrills() {
   return window['go']['main']['App']['GetAllDrills']();
 }
 
+export function GetAllRefineries() {
+  return window['go']['main']['App']['GetAllRefineries']();
+}
+
 export function GetConfig() {
   return window['go']['main']['App']['GetConfig']();
 }
 
 export function GetDrill(arg1) {
   return window['go']['main']['App']['GetDrill'](arg1);
+}
+
+export function GetRefinery(arg1) {
+  return window['go']['main']['App']['GetRefinery'](arg1);
 }
 
 export function ParseLargeNumber(arg1) {

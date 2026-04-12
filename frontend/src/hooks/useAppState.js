@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { GetConfig, GetAllDrills } from "../../wailsjs/go/main/App";
+import { GetConfig, GetAllDrills, GetAllRefineries } from "../../wailsjs/go/main/App";
 
 export const useAppState = () => {
   const [config, setConfig] = useState(null);
   const [drills, setDrills] = useState([]);
+  const [refineries, setRefineries] = useState([]);
   const [rate, setRate] = useState('');
   const [currentCash, setCurrentCash] = useState('');
   const [cashPerUnit, setCashPerUnit] = useState(15);
@@ -29,6 +30,9 @@ export const useAppState = () => {
           { Name: "Strong Drill", Price: 1800 },
           { Name: "Enhanced Drill", Price: 3600 },
         ]);
+
+        const r = await GetAllRefineries();
+        setRefineries(r && r.length > 0 ? r : []);
         
         setReady(true);
       } catch (err) {
@@ -39,6 +43,7 @@ export const useAppState = () => {
           { Name: "Strong Drill", Price: 1800 },
           { Name: "Enhanced Drill", Price: 3600 },
         ]);
+        setRefineries([]);
         setReady(true);
       }
     }, 500);
@@ -49,6 +54,7 @@ export const useAppState = () => {
   return {
     config, setConfig,
     drills, setDrills,
+    refineries, setRefineries,
     rate, setRate,
     currentCash, setCurrentCash,
     cashPerUnit, setCashPerUnit,

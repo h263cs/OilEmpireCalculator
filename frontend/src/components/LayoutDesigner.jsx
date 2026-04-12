@@ -28,6 +28,24 @@ const DRILL_COLORS = {
   'Ruby Drill': '#E90052',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
+  // Refineries
+  'Basic Refinery': '#D4A574',
+  'Enhanced Refinery': '#E8B76F',
+  'Reinforced Refinery': '#F0C46A',
+  'Advanced Refinery': '#F5D17D',
+  'Plasma Refinery': '#FF9500',
+  'Industrial Refinery': '#FF7F00',
+  'Energy Refinery': '#FF6B00',
+  'Mega Refinery': '#CC5500',
+  'Quantum Refinery': '#9370DB',
+  'Ice Refinery': '#40E0D0',
+  'Hell Refinery': '#FF4444',
+  'Mega Quantum Refinery': '#7B68EE',
+  'Mega Energy Refinery': '#FF6347',
+  'Lava Refinery': '#DC143C',
+  'Crystal Refinery': '#00CED1',
+  'Diamond Refinery': '#87CEEB',
+  'Ruby Refinery': '#FF1493',
 };
 
 const getDarkerColor = (hex) => {
@@ -49,7 +67,7 @@ const getRowColor = (row) => {
   return '#4A7C4E';
 };
 
-export const LayoutDesigner = ({ drills }) => {
+export const LayoutDesigner = ({ drills, refineries = [] }) => {
   const [placedItems, setPlacedItems] = useState([]);
   const [selectedDrill, setSelectedDrill] = useState(drills[0] || null);
   const [draggingItem, setDraggingItem] = useState(null);
@@ -160,14 +178,19 @@ export const LayoutDesigner = ({ drills }) => {
     if (col < 0 || col >= GRID_WIDTH || row < 0 || row >= GRID_HEIGHT) return;
 
     if (canPlaceItem(col, row, displaySize.width, displaySize.height)) {
+      // Determine if selected item is a refinery or drill
+      const isRefinery = refineries && refineries.some(r => r.name === (selectedDrill.Name || selectedDrill.name));
+      const itemName = selectedDrill.Name || selectedDrill.name;
+      
       const newItem = {
         id: Date.now(),
         col,
         row,
         width: displaySize.width,
         height: displaySize.height,
-        name: selectedDrill.Name,
-        color: DRILL_COLORS[selectedDrill.Name] || '#8B4513',
+        name: itemName,
+        type: isRefinery ? 'refinery' : 'drill',
+        color: DRILL_COLORS[itemName] || '#8B4513',
         rotated: isRotated,
       };
       setPlacedItems([...placedItems, newItem]);
@@ -304,6 +327,17 @@ export const LayoutDesigner = ({ drills }) => {
     return totalRate;
   };
 
+  const calculateTotalStorage = () => {
+    let totalStorage = 0;
+    placedItems.forEach(item => {
+      const refinery = refineries.find(r => r.Name === item.name || r.name === item.name);
+      if (refinery) {
+        totalStorage += (refinery.Storage || refinery.storage || 0);
+      }
+    });
+    return totalStorage;
+  };
+
   const consolidatedItems = placedItems.reduce((acc, item) => {
     const existing = acc.find(x => x.name === item.name);
     if (existing) {
@@ -405,14 +439,45 @@ export const LayoutDesigner = ({ drills }) => {
                     : 'bg-slate-700 hover:bg-slate-600'
                 }`}
               >
-                <span className="block text-sm">{drill.Name}</span>
-                <span className="text-xs text-slate-400">
-                  {drill.size.width}×{drill.size.height}
-                </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-lg">⛏️</span>
+                    <div>
+                      <span className="block text-sm">{drill.Name}</span>
+                      <span className="text-xs text-slate-400">
+                        {drill.size.width}×{drill.size.height}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-blue-600 px-2 py-1 rounded text-white whitespace-nowrap ml-2">Drill</span>
+                </div>
               </button>
             ))}
-            {activeTab === 'refineries' && (
-              <p className="text-slate-400 text-sm py-4">Refineries coming soon...</p>
+            {activeTab === 'refineries' && refineries && refineries.length > 0 ? refineries.map(refinery => (
+              <button
+                key={refinery.name || refinery.Name}
+                onClick={() => setSelectedDrill(refinery)}
+                className={`w-full px-4 py-2 rounded transition text-left ${
+                  (selectedDrill.name || selectedDrill.Name) === (refinery.name || refinery.Name)
+                    ? 'bg-blue-600'
+                    : 'bg-slate-700 hover:bg-slate-600'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-lg">🏭</span>
+                    <div>
+                      <span className="block text-sm">{refinery.name || refinery.Name || 'Unknown'}</span>
+                      <span className="text-xs text-slate-400">
+                        {refinery.size?.width}×{refinery.size?.height}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-purple-600 px-2 py-1 rounded text-white whitespace-nowrap ml-2">Refinery</span>
+                </div>
+              </button>
+            )) : (
+              <p className="text-slate-400 text-sm py-4">No refineries loaded</p>
             )}
             {activeTab === 'totems' && (
               <p className="text-slate-400 text-sm py-4">Totems coming soon...</p>
@@ -428,11 +493,22 @@ export const LayoutDesigner = ({ drills }) => {
               {consolidatedItems.length === 0 ? (
                 <p className="text-slate-400">No items placed</p>
               ) : (
-                consolidatedItems.map(item => (
-                  <div key={item.name} className="bg-slate-700 p-2 rounded">
-                    <span className="text-xs">{item.name} × {item.count}</span>
-                  </div>
-                ))
+                consolidatedItems.map(item => {
+                  const isRefinery = refineries && refineries.length > 0 && refineries.some(r => r.Name === item.name || r.name === item.name);
+                  const icon = isRefinery ? '🏭' : '⛏️';
+                  const badge = isRefinery ? 'Refinery' : 'Drill';
+                  const badgeColor = isRefinery ? 'bg-purple-600' : 'bg-blue-600';
+                  
+                  return (
+                    <div key={item.name} className="bg-slate-700 p-2 rounded flex items-center justify-between">
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-sm">{icon}</span>
+                        <span className="text-xs">{item.name} × <span className="font-bold">{item.count}</span></span>
+                      </div>
+                      <span className={`text-xs ${badgeColor} px-2 py-0.5 rounded text-white whitespace-nowrap`}>{badge}</span>
+                    </div>
+                  );
+                })
               )}
             </div>
             <p className="text-xs text-slate-400 mt-2">Double-click on grid to delete</p>
@@ -502,6 +578,10 @@ export const LayoutDesigner = ({ drills }) => {
 
             {placedItems.map(item => {
               const borderColor = getDarkerColor(item.color);
+              // Use the stored type, or fall back to checking refineries array
+              const isRefinery = item.type === 'refinery' || (refineries && refineries.length > 0 && refineries.some(r => r.Name === item.name));
+              const icon = isRefinery ? '🏭' : '⛏️';
+              
               return (
                 <div
                   key={item.id}
@@ -519,9 +599,17 @@ export const LayoutDesigner = ({ drills }) => {
                     opacity: draggingItem === item.id ? 0.8 : 1,
                     zIndex: draggingItem === item.id ? 10 : 1,
                     boxSizing: 'border-box',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.9rem',
+                    textShadow: '0 1px 3px rgba(0,0,0,0.5)',
                   }}
                   className="transition-opacity"
-                />
+                  title={`${item.name}${isRefinery ? ' (Refinery)' : ' (Drill)'}`}
+                >
+                  <span style={{ opacity: 0.4 }}>{icon}</span>
+                </div>
               );
             })}
           </div>
@@ -531,7 +619,7 @@ export const LayoutDesigner = ({ drills }) => {
       {/* Production Stats */}
       <div className="bg-slate-800 rounded-lg p-6 space-y-4">
         <h3 className="text-xl font-semibold">📊 Production Rate</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="bg-slate-700 rounded p-4">
             <p className="text-slate-400 text-sm mb-2">Pre-Boost Rate</p>
             <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-blue-400">{calculatePreBoostRate()}</span></p>
@@ -539,6 +627,10 @@ export const LayoutDesigner = ({ drills }) => {
           <div className="bg-slate-700 rounded p-4">
             <p className="text-slate-400 text-sm mb-2">Post-Boost Rate</p>
             <p className="text-slate-300">Petrol/Second: <span className="text-2xl font-bold text-green-400">{calculateTotalRate()}</span></p>
+          </div>
+          <div className="bg-slate-700 rounded p-4">
+            <p className="text-slate-400 text-sm mb-2">Total Storage</p>
+            <p className="text-slate-300">Capacity: <span className="text-2xl font-bold text-orange-400">{calculateTotalStorage()}</span></p>
           </div>
         </div>
       </div>

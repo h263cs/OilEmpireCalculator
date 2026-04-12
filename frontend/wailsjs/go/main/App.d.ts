@@ -18,9 +18,13 @@ export function FormatLarge(arg1:number):Promise<string>;
 
 export function GetAllDrills():Promise<Array<main.Drill>>;
 
+export function GetAllRefineries():Promise<Array<main.Refinery>>;
+
 export function GetConfig():Promise<main.Config>;
 
 export function GetDrill(arg1:string):Promise<main.Drill>;
+
+export function GetRefinery(arg1:string):Promise<main.Refinery>;
 
 export function ParseLargeNumber(arg1:string):Promise<number>;
 

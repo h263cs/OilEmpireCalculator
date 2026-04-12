@@ -62,6 +62,10 @@ func (a *App) GetDrill(name string) Drill { return GetDrill(name) }
 
 func (a *App) GetAllDrills() []Drill { return Drills }
 
+func (a *App) GetRefinery(name string) Refinery { return GetRefinery(name) }
+
+func (a *App) GetAllRefineries() []Refinery { return Refineries }
+
 func (a *App) ParseLargeNumber(input string) float64 {
 	num, _ := parseLargeNumber(input)
 	return num

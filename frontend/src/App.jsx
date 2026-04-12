@@ -68,7 +68,7 @@ function App() {
         )}
 
         {currentPage === 'layout' && (
-          <LayoutDesigner drills={appState.drills} />
+          <LayoutDesigner drills={appState.drills} refineries={appState.refineries} />
         )}
 
         {currentPage === 'about' && (

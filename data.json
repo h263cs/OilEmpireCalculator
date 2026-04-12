@@ -24,7 +24,23 @@
     { "name": "Mini Ruby Drill", "price": 0, "rate": 67, "width": 1, "height": 1 }
   ],
   "refineries": [
-    { "name": "Basic Refinery", "price": 1000, "efficiency": 1.1, "width": 2, "height": 2 }
+    { "name": "Basic Refinery", "price": 500, "storage": 50, "width": 1, "height": 1 },
+    { "name": "Enhanced Refinery", "price": 2500, "storage": 150, "width": 1, "height": 1 },
+    { "name": "Reinforced Refinery", "price": 6250, "storage": 250, "width": 1, "height": 1 },
+    { "name": "Advanced Refinery", "price": 20000, "storage": 500, "width": 1, "height": 1 },
+    { "name": "Plasma Refinery", "price": 50000, "storage": 800, "width": 1, "height": 1 },
+    { "name": "Industrial Refinery", "price": 200000, "storage": 1500, "width": 1, "height": 1 },
+    { "name": "Energy Refinery", "price": 700000, "storage": 2000, "width": 1, "height": 1 },
+    { "name": "Mega Refinery", "price": 3000000, "storage": 5000, "width": 2, "height": 2 },
+    { "name": "Quantum Refinery", "price": 5000000, "storage": 7500, "width": 1, "height": 1 },
+    { "name": "Ice Refinery", "price": 8000000, "storage": 12500, "width": 1, "height": 1 },
+    { "name": "Hell Refinery", "price": 16000000, "storage": 20000, "width": 1, "height": 1 },
+    { "name": "Mega Quantum Refinery", "price": 90000000, "storage": 100000, "width": 2, "height": 2 },
+    { "name": "Mega Energy Refinery", "price": 150000000, "storage": 150000, "width": 2, "height": 2 },
+    { "name": "Lava Refinery", "price": 360000000, "storage": 275000, "width": 2, "height": 2 },
+    { "name": "Crystal Refinery", "price": 600000000, "storage": 400000, "width": 2, "height": 2 },
+    { "name": "Diamond Refinery", "price": 5000000000, "storage": 1000000, "width": 2, "height": 2 },
+    { "name": "Ruby Refinery", "price": 50000000000, "storage": 5000000, "width": 2, "height": 2 }
   ],
   "totems": [
     { "name": "Example Totem", "price": 5000, "effect": "boost", "width": 1, "height": 1 }
