@@ -3,11 +3,13 @@ import {
   CalculateGasProfit, 
   CalculateGoalTime,
   CalculateDrillAffordTime,
-  BatchCalculate
+  BatchCalculate,
+  ParseLargeNumber
 } from "../../wailsjs/go/main/App";
 
 export const calculateProduction = async (rate, cashPerUnit, boost) => {
-  return await CalculateProduction(parseFloat(rate) || 0, cashPerUnit, boost);
+  const rateNum = await ParseLargeNumber(rate) || 0;
+  return await CalculateProduction(rateNum, cashPerUnit, boost);
 };
 
 export const calculateGasProfit = async (gasAmount, cashPerUnit, boost) => {
@@ -23,9 +25,11 @@ export const calculateGoalTime = async (rate, currentCash, cashPerUnit, boost, g
 };
 
 export const batchCalculate = async (rate, currentCash, cashPerUnit, boost, gasAmount, goalAmount, drillSelections) => {
+  const rateNum = await ParseLargeNumber(rate) || 0;
+  const cashNum = await ParseLargeNumber(currentCash) || 0;
   return await BatchCalculate({
-    rate_per_second: parseFloat(rate) || 0,
-    current_cash: parseFloat(currentCash) || 0,
+    rate_per_second: rateNum,
+    current_cash: cashNum,
     cash_per_unit: cashPerUnit,
     boost_percent: boost,
     gas_amount_str: gasAmount,
