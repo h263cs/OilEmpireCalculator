@@ -20,9 +20,11 @@
     { "name": "Crystal Drill", "price": 9000000000, "rate": 1500, "width": 2, "height": 2 },
     { "name": "Diamond Drill", "price": 27500000000, "rate": 2750, "width": 2, "height": 2 },
     { "name": "Ruby Drill", "price": 85500000000, "rate": 4500, "width": 2, "height": 2 },
-    { "name": "Fusion Drill", "price": 187000000000, "rate": 7500, "width": 2, "height": 2 },
+    { "name": "Fusion Drill", "price": 187500000000, "rate": 7500, "width": 2, "height": 2 },
     { "name": "Quantum Drill", "price": 0, "rate": 175, "width": 2, "height": 1 },
-    { "name": "Mini Ruby Drill", "price": 0, "rate": 67, "width": 1, "height": 1 }
+    { "name": "Mini Multi Drill", "price": 0, "rate": 250, "width": 2, "height": 1 },
+    { "name": "Mini Ruby Drill", "price": 0, "rate": 67, "width": 1, "height": 1 },
+    { "name": "Mini Diamond Drill", "price": 0, "rate": 100, "width": 1, "height": 1 }
   ],
   "refineries": [
     { "name": "Basic Refinery", "price": 500, "storage": 50, "width": 1, "height": 1 },
