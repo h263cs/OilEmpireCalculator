@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { calculateProduction } from '../utils/calculations';
 import { formatLargeSync } from '../utils/formatters';
-import { UpdateConfig } from "../../wailsjs/go/main/App";
+import { UpdateConfig, ParseLargeNumber } from "../../wailsjs/go/main/App";
 
 export const ProductionStats = ({ 
   rate, setRate, 
@@ -11,6 +11,7 @@ export const ProductionStats = ({
   setConfig 
 }) => {
   const [production, setProduction] = useState({ petrol_per_hr: 0, cash_per_hr: 0 });
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const calc = async () => {
@@ -21,10 +22,14 @@ export const ProductionStats = ({
   }, [rate, cashPerUnit, boost]);
 
   const handleSaveConfig = async () => {
-    const rateNum = parseFloat(rate) || 0;
-    const cashNum = parseFloat(currentCash) || 0;
+    const rateNum = await ParseLargeNumber(rate) || 0;
+    const cashNum = await ParseLargeNumber(currentCash) || 0;
     await UpdateConfig(rateNum, cashPerUnit, boost, cashNum);
     setConfig({ rate_per_second: rateNum, cash_per_unit: cashPerUnit, boost_percent: boost, current_cash: cashNum });
+    
+    // Show saved state
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3500);
   };
 
   return (
@@ -39,7 +44,7 @@ export const ProductionStats = ({
             type="text" 
             value={rate}
             onChange={(e) => setRate(e.target.value)}
-            placeholder="e.g. 30000"
+            placeholder="e.g. 30000 or 30K or 30,000"
             className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -49,15 +54,19 @@ export const ProductionStats = ({
             type="text" 
             value={currentCash}
             onChange={(e) => setCurrentCash(e.target.value)}
-            placeholder="e.g. 3.2B"
+            placeholder="e.g. 3.2B or 3,200,000,000"
             className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
           />
         </div>
         <button 
           onClick={handleSaveConfig}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition"
+          className={`w-full px-6 py-2 rounded transition font-semibold text-white ${
+            saved 
+              ? 'bg-green-600 hover:bg-green-700' 
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
-          Save Config
+          {saved ? '✅ Saved' : 'Save Config'}
         </button>
       </div>
 
