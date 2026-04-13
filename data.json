@@ -21,11 +21,25 @@
     { "name": "Diamond Drill", "price": 27500000000, "rate": 2750, "width": 2, "height": 2 },
     { "name": "Ruby Drill", "price": 85500000000, "rate": 4500, "width": 2, "height": 2 },
     { "name": "Fusion Drill", "price": 187500000000, "rate": 7500, "width": 2, "height": 2 },
-    { "name": "Quantum Drill", "price": 0, "rate": 175, "width": 2, "height": 1 },
-    { "name": "Mini Multi Drill", "price": 0, "rate": 250, "width": 2, "height": 1 },
-    { "name": "Mini Ruby Drill", "price": 0, "rate": 67, "width": 1, "height": 1 },
-    { "name": "Mini Diamond Drill", "price": 0, "rate": 100, "width": 1, "height": 1 }
+    { "name": "Quantum Drill", "drop_rate": 10, "rate": 175, "width": 2, "height": 1 },
+    { "name": "Mini Ruby Drill", "drop_rate": 45, "rate": 67, "width": 1, "height": 1 },
+    { "name": "Mini Multi Drill", "drop_rate": 1, "rate": 250, "width": 2, "height": 1 },
+    { "name": "Mini Diamond Drill", "drop_rate": 5, "rate": 100, "width": 1, "height": 1 }
   ],
+  "packs": {
+    "infinity": [
+      { "name": "Quantum Drill", "drop_rate": 10, "rate": 175, "width": 2, "height": 1 },
+      { "name": "Mini Ruby Drill", "drop_rate": 45, "rate": 67, "width": 1, "height": 1 },
+      { "name": "Plasma Drill", "drop_rate": 45, "rate": 50, "width": 1, "height": 1 }
+    ],
+    "rainbow": [
+      { "name": "Quantum Drill", "drop_rate": 30, "rate": 175, "width": 2, "height": 1 },
+      { "name": "Mini Ruby Drill", "drop_rate": 30, "rate": 67, "width": 1, "height": 1 },
+      { "name": "Plasma Drill", "drop_rate": 35, "rate": 50, "width": 1, "height": 1 },
+      { "name": "Mini Multi Drill", "drop_rate": 1, "rate": 250, "width": 2, "height": 1 },
+      { "name": "Mini Diamond Drill", "drop_rate": 5, "rate": 100, "width": 1, "height": 1 }
+    ]
+  },
   "refineries": [
     { "name": "Basic Refinery", "price": 500, "storage": 50, "width": 1, "height": 1 },
     { "name": "Enhanced Refinery", "price": 2500, "storage": 150, "width": 1, "height": 1 },

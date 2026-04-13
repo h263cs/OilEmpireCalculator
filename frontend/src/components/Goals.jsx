@@ -28,8 +28,15 @@ export const Goals = ({
   }, [rate, currentCash, cashPerUnit, boost, goalAmount]);
 
   const addDrillSelection = () => {
-    if (drills.length > 0) {
-      setDrillSelections([...drillSelections, { drillName: drills[0].Name, count: 1 }]);
+    // Filter for drills that have a price (shop drills)
+    const shopDrills = drills.filter(drill => {
+      const drillPrice = drill.Price || drill.price;
+      return drillPrice && drillPrice > 0;
+    });
+    
+    if (shopDrills.length > 0) {
+      const drillName = shopDrills[0].Name || shopDrills[0].name;
+      setDrillSelections([...drillSelections, { drillName: drillName, count: 1 }]);
     }
   };
 
@@ -57,20 +64,30 @@ export const Goals = ({
                 onChange={(e) => updateDrillSelection(idx, 'drillName', e.target.value)}
                 className="flex-1 bg-slate-600 border border-slate-500 rounded px-3 py-1 text-white focus:outline-none focus:border-blue-500"
               >
-                {drills.map(drill => (
-                  <option key={drill.Name} value={drill.Name}>
-                    {drill.Name} - ${formatLargeSync(drill.Price)}
-                  </option>
-                ))}
+                {drills
+                  .filter(drill => {
+                    // Only show drills that have a price (shop drills, not pack drills)
+                    const drillPrice = drill.Price || drill.price;
+                    return drillPrice && drillPrice > 0;
+                  })
+                  .map(drill => {
+                    const drillName = drill.Name || drill.name;
+                    const drillPrice = drill.Price || drill.price || 0;
+                    return (
+                      <option key={drillName} value={drillName}>
+                        {drillName} - ${formatLargeSync(drillPrice)}
+                      </option>
+                    );
+                  })}
               </select>
-			  <input 
-			  type="number" 
-			  value={selection.count === 0 ? '' : selection.count}
-			  onChange={(e) => updateDrillSelection(idx, 'count', parseInt(e.target.value) || 0)}
-			  min="0"
-			  placeholder="0"
-			  className="w-20 bg-slate-600 border border-slate-500 rounded px-2 py-1 text-white text-center focus:outline-none focus:border-blue-500"
-			  />
+              <input 
+                type="number" 
+                value={selection.count === 0 ? '' : selection.count}
+                onChange={(e) => updateDrillSelection(idx, 'count', parseInt(e.target.value) || 0)}
+                min="0"
+                placeholder="0"
+                className="w-20 bg-slate-600 border border-slate-500 rounded px-2 py-1 text-white text-center focus:outline-none focus:border-blue-500"
+              />
               <button
                 onClick={() => removeDrillSelection(idx)}
                 className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded transition"

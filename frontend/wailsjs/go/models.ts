@@ -107,25 +107,13 @@ export namespace main {
 	        this.current_cash_str = source["current_cash_str"];
 	    }
 	}
-	export class DrillSize {
+	export class Drill {
+	    name: string;
+	    price?: number;
+	    drop_rate?: number;
+	    rate: number;
 	    width: number;
 	    height: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new DrillSize(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.width = source["width"];
-	        this.height = source["height"];
-	    }
-	}
-	export class Drill {
-	    Name: string;
-	    Price: number;
-	    rate: number;
-	    size: DrillSize;
 	
 	    static createFrom(source: any = {}) {
 	        return new Drill(source);
@@ -133,32 +121,35 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.Name = source["Name"];
-	        this.Price = source["Price"];
+	        this.name = source["name"];
+	        this.price = source["price"];
+	        this.drop_rate = source["drop_rate"];
 	        this.rate = source["rate"];
-	        this.size = this.convertValues(source["size"], DrillSize);
+	        this.width = source["width"];
+	        this.height = source["height"];
 	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
 	}
 	
+	export class PackDrill {
+	    name: string;
+	    drop_rate: number;
+	    rate: number;
+	    width: number;
+	    height: number;
 	
+	    static createFrom(source: any = {}) {
+	        return new PackDrill(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.drop_rate = source["drop_rate"];
+	        this.rate = source["rate"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	    }
+	}
 	export class RefinerySize {
 	    width: number;
 	    height: number;

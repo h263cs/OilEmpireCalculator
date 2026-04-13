@@ -260,3 +260,15 @@ func (a *App) BatchCalculate(params BatchCalculateParams) BatchCalculationResult
 	wg.Wait()
 	return result
 }
+
+func (a *App) GetPackDrills(packType string) []PackDrill {
+	return GetPackDrills(packType)
+}
+
+func (a *App) CalculatePacksNeeded99Confidence(targetQuantity, dropRate float64) int {
+	return CalculatePacksNeeded99Confidence(targetQuantity, dropRate)
+}
+
+func (a *App) CalculateBulkRainbowPackCost(packCount int) map[string]interface{} {
+	return CalculateBulkRainbowPackCost(packCount)
+}

@@ -6,6 +6,10 @@ export function BatchCalculate(arg1) {
   return window['go']['main']['App']['BatchCalculate'](arg1);
 }
 
+export function CalculateBulkRainbowPackCost(arg1) {
+  return window['go']['main']['App']['CalculateBulkRainbowPackCost'](arg1);
+}
+
 export function CalculateDrillAffordTime(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['CalculateDrillAffordTime'](arg1, arg2, arg3, arg4, arg5);
 }
@@ -16,6 +20,10 @@ export function CalculateGasProfit(arg1, arg2, arg3) {
 
 export function CalculateGoalTime(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['main']['App']['CalculateGoalTime'](arg1, arg2, arg3, arg4, arg5);
+}
+
+export function CalculatePacksNeeded99Confidence(arg1, arg2) {
+  return window['go']['main']['App']['CalculatePacksNeeded99Confidence'](arg1, arg2);
 }
 
 export function CalculateProduction(arg1, arg2, arg3) {
@@ -44,6 +52,10 @@ export function GetConfig() {
 
 export function GetDrill(arg1) {
   return window['go']['main']['App']['GetDrill'](arg1);
+}
+
+export function GetPackDrills(arg1) {
+  return window['go']['main']['App']['GetPackDrills'](arg1);
 }
 
 export function GetRefinery(arg1) {

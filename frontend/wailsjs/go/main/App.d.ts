@@ -4,11 +4,15 @@ import {main} from '../models';
 
 export function BatchCalculate(arg1:main.BatchCalculateParams):Promise<main.BatchCalculationResult>;
 
+export function CalculateBulkRainbowPackCost(arg1:number):Promise<Record<string, any>>;
+
 export function CalculateDrillAffordTime(arg1:string,arg2:string,arg3:number,arg4:number,arg5:Array<Record<string, any>>):Promise<main.DrillAffordResult>;
 
 export function CalculateGasProfit(arg1:string,arg2:number,arg3:number):Promise<number>;
 
 export function CalculateGoalTime(arg1:string,arg2:string,arg3:string,arg4:number,arg5:number):Promise<string>;
+
+export function CalculatePacksNeeded99Confidence(arg1:number,arg2:number):Promise<number>;
 
 export function CalculateProduction(arg1:number,arg2:number,arg3:number):Promise<main.CalculationResult>;
 
@@ -23,6 +27,8 @@ export function GetAllRefineries():Promise<Array<main.Refinery>>;
 export function GetConfig():Promise<main.Config>;
 
 export function GetDrill(arg1:string):Promise<main.Drill>;
+
+export function GetPackDrills(arg1:string):Promise<Array<main.PackDrill>>;
 
 export function GetRefinery(arg1:string):Promise<main.Refinery>;
 
