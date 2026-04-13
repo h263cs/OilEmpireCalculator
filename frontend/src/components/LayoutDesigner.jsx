@@ -991,7 +991,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
                           <div>
                             <span className="block text-sm">{drillName}</span>
                             <span className="text-xs text-slate-400">
-                              {drill.size?.width || drill.width || 1}×{drill.size?.height || drill.height || 1}
+                              {drill.size?.width || drill.width || 1}×{drill.size?.height || drill.height || 1} • {(drill.rate || drill.Rate || 0).toLocaleString()}/s
                             </span>
                           </div>
                         </div>
@@ -1037,7 +1037,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
                     <div>
                       <span className="block text-sm">{refinery.name || refinery.Name || 'Unknown'}</span>
                       <span className="text-xs text-slate-400">
-                        {refinery.size?.width || refinery.width || 1}×{refinery.size?.height || refinery.height || 1}
+                        {refinery.size?.width || refinery.width || 1}×{refinery.size?.height || refinery.height || 1} • {(refinery.storage || refinery.Storage || 0).toLocaleString()} storage
                       </span>
                     </div>
                   </div>
