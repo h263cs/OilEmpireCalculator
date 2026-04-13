@@ -2,8 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"os"
+	_ "embed"
 )
+
+//go:embed data.json
+var dataContent string
 
 type Drill struct {
 	Name     string  `json:"name"`
@@ -28,13 +31,8 @@ func init() {
 }
 
 func LoadDrills() error {
-	data, err := os.ReadFile("data.json")
-	if err != nil {
-		return err
-	}
-
 	var gameData GameData
-	err = json.Unmarshal(data, &gameData)
+	err := json.Unmarshal([]byte(dataContent), &gameData)
 	if err != nil {
 		return err
 	}
@@ -77,12 +75,7 @@ func GetDrill(name string) Drill {
 }
 
 func LoadGameData() (GameData, error) {
-	data, err := os.ReadFile("data.json")
-	if err != nil {
-		return GameData{}, err
-	}
-
 	var gameData GameData
-	err = json.Unmarshal(data, &gameData)
+	err := json.Unmarshal([]byte(dataContent), &gameData)
 	return gameData, err
 }

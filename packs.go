@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 )
+
+// dataContent is imported from drills.go via //go:embed directive
 
 type PackDrill struct {
 	Name     string  `json:"name"`
@@ -27,16 +28,11 @@ func init() {
 }
 
 func LoadPacks() error {
-	data, err := os.ReadFile("data.json")
-	if err != nil {
-		return err
-	}
-
 	var gameData struct {
 		Packs PackData `json:"packs"`
 	}
 
-	err = json.Unmarshal(data, &gameData)
+	err := json.Unmarshal([]byte(dataContent), &gameData)
 	if err != nil {
 		return err
 	}
