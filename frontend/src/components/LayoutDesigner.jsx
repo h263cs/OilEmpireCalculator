@@ -27,6 +27,7 @@ const DRILL_COLORS = {
   'Diamond Drill': '#00D9FF',
   'Ruby Drill': '#E90052',
   'Fusion Drill': '#E9FF5C',
+  'Uranium Drill': '#00ff62',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
   'Mini Multi Drill': '#A9A9A9',
@@ -50,6 +51,7 @@ const DRILL_COLORS = {
   'Diamond Refinery': '#87CEEB',
   'Ruby Refinery': '#FF1493',
   'Fusion Refinery': '#F9FFD4',
+  'Uranium Refinery': '#00be49',
 };
 
 const getDarkerColor = (hex) => {

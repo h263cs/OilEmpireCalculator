@@ -21,6 +21,7 @@
     { "name": "Diamond Drill", "price": 27500000000, "rate": 2750, "width": 2, "height": 2 },
     { "name": "Ruby Drill", "price": 85500000000, "rate": 4500, "width": 2, "height": 2 },
     { "name": "Fusion Drill", "price": 187500000000, "rate": 7500, "width": 2, "height": 2 },
+    { "name": "Uranium Drill", "price": 437500000000, "rate": 12500, "width": 2, "height": 2 },
     { "name": "Quantum Drill", "drop_rate": 10, "rate": 175, "width": 2, "height": 1 },
     { "name": "Mini Ruby Drill", "drop_rate": 45, "rate": 67, "width": 1, "height": 1 },
     { "name": "Mini Multi Drill", "drop_rate": 1, "rate": 250, "width": 2, "height": 1 },
@@ -58,7 +59,8 @@
     { "name": "Crystal Refinery", "price": 600000000, "storage": 400000, "width": 2, "height": 2 },
     { "name": "Diamond Refinery", "price": 5000000000, "storage": 1000000, "width": 2, "height": 2 },
     { "name": "Ruby Refinery", "price": 50000000000, "storage": 5000000, "width": 2, "height": 2 },
-    { "name": "Fusion Refinery", "price": 285000000000, "storage": 15000000, "width": 2, "height": 2 }
+    { "name": "Fusion Refinery", "price": 285000000000, "storage": 15000000, "width": 2, "height": 2 },
+    { "name": "Uranium Refinery", "price": 625000000000, "storage": 25000000, "width": 2, "height": 2 }
   ],
   "totems": [
     { "name": "Example Totem", "price": 5000, "effect": "boost", "width": 1, "height": 1 }
