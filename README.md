@@ -3,9 +3,6 @@
 
 <img width="1439" height="839" alt="Screenshot 2026-04-12 013753" src="https://github.com/user-attachments/assets/5633025d-a543-4a2c-b70a-1aaf6fbe2c14" />
 
-## Web Version Available!
-There is a [web version](https://crudekings.kyzen7.dev/) of this application being developed by **kyzen** ([Github](https://github.com/kyzenlabs)/[Portfolio](https://kyzen7.dev/)) you can use if you wish. Thanks for saving me from more frontend design and conversion ♥️.
-
 ## Features
 This calculator provides you with the following information:
 
