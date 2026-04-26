@@ -2,8 +2,20 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"strings"
 	"sync"
 )
+
+const AppVersion = "v0.2-beta.7"
+
+type Release struct {
+	TagName string `json:"tag_name"`
+	HtmlUrl string `json:"html_url"`
+	Body    string `json:"body"`
+}
 
 type App struct {
 	ctx    context.Context
@@ -21,12 +33,12 @@ type DrillAffordResult struct {
 }
 
 type BatchCalculateParams struct {
-	RatePerSecond   float64                   `json:"rate_per_second"`
-	CurrentCash     float64                   `json:"current_cash"`
-	CashPerUnit     float64                   `json:"cash_per_unit"`
-	BoostPercent    float64                   `json:"boost_percent"`
-	GasAmountStr    string                    `json:"gas_amount_str"`
-	GoalAmountStr   string                    `json:"goal_amount_str"`
+	RatePerSecond   float64                  `json:"rate_per_second"`
+	CurrentCash     float64                  `json:"current_cash"`
+	CashPerUnit     float64                  `json:"cash_per_unit"`
+	BoostPercent    float64                  `json:"boost_percent"`
+	GasAmountStr    string                   `json:"gas_amount_str"`
+	GoalAmountStr   string                   `json:"goal_amount_str"`
 	DrillSelections []map[string]interface{} `json:"drill_selections"`
 }
 
@@ -66,9 +78,48 @@ func (a *App) GetRefinery(name string) Refinery { return GetRefinery(name) }
 
 func (a *App) GetAllRefineries() []Refinery { return Refineries }
 
-func (a *App) ParseLargeNumber(input string) float64 {
-	num, _ := parseLargeNumber(input)
-	return num
+func (a *App) GetAllWalls() []Wall { return Walls }
+
+func (a *App) ParseLargeNumber(input string) (float64, error) {
+	return parseLargeNumber(input)
+}
+
+func (a *App) CheckForUpdates() map[string]interface{} {
+	result := map[string]interface{}{
+		"hasUpdate": false,
+		"version":   AppVersion,
+	}
+
+	// Fetch latest release from GitHub API
+	resp, err := http.Get("https://api.github.com/repos/h263cs/OilEmpireCalculator/releases/latest")
+	if err != nil {
+		result["error"] = "Failed to check for updates"
+		return result
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		result["error"] = "Failed to read response"
+		return result
+	}
+
+	var release Release
+	err = json.Unmarshal(body, &release)
+	if err != nil {
+		result["error"] = "Failed to parse release data"
+		return result
+	}
+
+	// Compare versions (simple string comparison since they're in v0.2-beta.X format)
+	if strings.TrimPrefix(release.TagName, "v") > strings.TrimPrefix(AppVersion, "v") {
+		result["hasUpdate"] = true
+		result["newVersion"] = release.TagName
+		result["downloadUrl"] = release.HtmlUrl
+		result["releaseNotes"] = release.Body
+	}
+
+	return result
 }
 
 func (a *App) FormatLarge(num float64) string {

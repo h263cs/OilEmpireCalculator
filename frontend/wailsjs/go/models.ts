@@ -94,6 +94,7 @@ export namespace main {
 	    boost_percent: number;
 	    cash_per_unit: number;
 	    current_cash_str: string;
+	    active_wall: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -105,6 +106,7 @@ export namespace main {
 	        this.boost_percent = source["boost_percent"];
 	        this.cash_per_unit = source["cash_per_unit"];
 	        this.current_cash_str = source["current_cash_str"];
+	        this.active_wall = source["active_wall"];
 	    }
 	}
 	export class Drill {
@@ -199,6 +201,21 @@ export namespace main {
 		    }
 		    return a;
 		}
+	}
+	
+	export class Wall {
+	    price: number;
+	    cash_boost: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Wall(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.price = source["price"];
+	        this.cash_boost = source["cash_boost"];
+	    }
 	}
 
 }

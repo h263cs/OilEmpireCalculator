@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { useAppState } from './hooks/useAppState.js';
 import { calculateGoalTime } from './utils/calculations.js';
@@ -68,7 +68,7 @@ function App() {
         )}
 
         {currentPage === 'layout' && (
-          <LayoutDesigner drills={appState.drills} refineries={appState.refineries} />
+          <LayoutDesigner drills={appState.drills} refineries={appState.refineries} walls={appState.walls} />
         )}
 
         {currentPage === 'about' && (

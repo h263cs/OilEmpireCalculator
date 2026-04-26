@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { calculateProduction } from '../utils/calculations';
 import { formatLargeSync } from '../utils/formatters';
-import { UpdateConfig, ParseLargeNumber } from "../../wailsjs/go/main/App";
+import { UpdateConfig, ParseLargeNumber, GetAllWalls } from "../../wailsjs/go/main/App";
 
 export const ProductionStats = ({ 
   rate, setRate, 
@@ -12,6 +12,24 @@ export const ProductionStats = ({
 }) => {
   const [production, setProduction] = useState({ petrol_per_hr: 0, cash_per_hr: 0 });
   const [saved, setSaved] = useState(false);
+  const [activeWall, setActiveWall] = useState(0);
+  const [walls, setWalls] = useState([]);
+
+  // Load walls on mount
+  useEffect(() => {
+    const loadWalls = async () => {
+      try {
+        const wallList = await GetAllWalls();
+        setWalls(wallList || []);
+        if (wallList && wallList.length > 0) {
+          setActiveWall(wallList[0].cash_boost);
+        }
+      } catch (err) {
+        console.error('Error loading walls:', err);
+      }
+    };
+    loadWalls();
+  }, []);
 
   useEffect(() => {
     const calc = async () => {
@@ -101,6 +119,24 @@ export const ProductionStats = ({
               onChange={(e) => setBoost(parseFloat(e.target.value))}
               className="w-full"
             />
+          </div>
+          <div className="border-t border-slate-700 pt-4">
+            <label className="text-slate-300 block mb-3 font-semibold">🧱 Active Wall</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              {walls.map((wall, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveWall(wall.cash_boost)}
+                  className={`rounded p-3 transition border-2 font-semibold text-center ${
+                    activeWall === wall.cash_boost
+                      ? 'bg-green-900 border-green-400 shadow-lg shadow-green-500/20 text-green-300'
+                      : 'bg-slate-700 border-slate-600 hover:border-slate-500 text-slate-300'
+                  }`}
+                >
+                  {wall.cash_boost > 0 ? `+${wall.cash_boost}%` : '0%'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

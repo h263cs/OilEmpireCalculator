@@ -16,6 +16,8 @@ export function CalculatePacksNeeded99Confidence(arg1:number,arg2:number):Promis
 
 export function CalculateProduction(arg1:number,arg2:number,arg3:number):Promise<main.CalculationResult>;
 
+export function CheckForUpdates():Promise<Record<string, any>>;
+
 export function FormatDuration(arg1:number):Promise<string>;
 
 export function FormatLarge(arg1:number):Promise<string>;
@@ -23,6 +25,8 @@ export function FormatLarge(arg1:number):Promise<string>;
 export function GetAllDrills():Promise<Array<main.Drill>>;
 
 export function GetAllRefineries():Promise<Array<main.Refinery>>;
+
+export function GetAllWalls():Promise<Array<main.Wall>>;
 
 export function GetConfig():Promise<main.Config>;
 

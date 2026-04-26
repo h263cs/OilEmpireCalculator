@@ -30,6 +30,10 @@ export function CalculateProduction(arg1, arg2, arg3) {
   return window['go']['main']['App']['CalculateProduction'](arg1, arg2, arg3);
 }
 
+export function CheckForUpdates() {
+  return window['go']['main']['App']['CheckForUpdates']();
+}
+
 export function FormatDuration(arg1) {
   return window['go']['main']['App']['FormatDuration'](arg1);
 }
@@ -44,6 +48,10 @@ export function GetAllDrills() {
 
 export function GetAllRefineries() {
   return window['go']['main']['App']['GetAllRefineries']();
+}
+
+export function GetAllWalls() {
+  return window['go']['main']['App']['GetAllWalls']();
 }
 
 export function GetConfig() {

@@ -4,6 +4,8 @@ const GRID_WIDTH = 15;
 const GRID_HEIGHT = 20;
 const CELL_SIZE = 30;
 const DRILL_PADDING = 4; // 4px padding around drills
+const WALL_THICKNESS = 12; // Thinner walls
+const WALL_GAP = 8; // Padding between grid and walls
 
 const DRILL_COLORS = {
   'Basic Drill': '#A9A9A9',
@@ -28,9 +30,10 @@ const DRILL_COLORS = {
   'Ruby Drill': '#E90052',
   'Fusion Drill': '#E9FF5C',
   'Uranium Drill': '#00ff62',
+  'Radium Drill': '#2b67ff',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
-  'Mini Multi Drill': '#A9A9A9',
+  'Mini Multi Drill': '#39FF14',
   'Mini Diamond Drill': '#00D9FF',
   // Refineries
   'Basic Refinery': '#D4A574',
@@ -50,8 +53,11 @@ const DRILL_COLORS = {
   'Crystal Refinery': '#00CED1',
   'Diamond Refinery': '#87CEEB',
   'Ruby Refinery': '#FF1493',
-  'Fusion Refinery': '#F9FFD4',
+  'Fusion Refinery': '#FF00FF',
   'Uranium Refinery': '#00be49',
+  'Radium Refinery': '#6e97ff',
+  // Walls
+  'Base Walls': '#808080',
 };
 
 const getDarkerColor = (hex) => {
@@ -82,7 +88,7 @@ const getRowColor = (row) => {
   return '#4A7C4E';
 };
 
-export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
+export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => {
   const [placedItems, setPlacedItems] = useState(() => {
     // Auto-load layout from localStorage on component mount
     const savedLayout = localStorage.getItem('oilEmpireLayout_slot_0');
@@ -118,6 +124,16 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
   const [editingName, setEditingName] = useState('');
   const [currentSlot, setCurrentSlot] = useState(0);
   const [savedFeedback, setSavedFeedback] = useState(false);
+  const [selectedWall, setSelectedWall] = useState(0);
+
+  // Update selected wall when walls change
+  useEffect(() => {
+    if (walls && walls.length > 0) {
+      const cashBoostValue = walls[0].cashBoost !== undefined ? walls[0].cashBoost : walls[0].CashBoost;
+      const numValue = !isNaN(Number(cashBoostValue)) ? Number(cashBoostValue) : 0;
+      setSelectedWall(numValue);
+    }
+  }, [walls]);
   const [showCustomDrill, setShowCustomDrill] = useState(false);
   const [customDrills, setCustomDrills] = useState(() => {
     // Use sessionStorage so custom drills persist during page navigation but reset on app close
@@ -148,6 +164,9 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
 
   // Combine regular drills with custom drills for display
   const allDrills = [...(drills || []), ...customDrills];
+
+  // Get wall color from DRILL_COLORS (like drills and refineries)
+  const wallColor = DRILL_COLORS['Base Walls'] || '#808080';
 
   // Auto-save layout whenever placedItems changes
   useEffect(() => {
@@ -514,6 +533,12 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
       }
     });
     return totalStorage;
+  };
+
+  const calculateTotalTotemBoost = () => {
+    // TODO: Calculate totem boost from placed items
+    // For now, returns 0 since totems aren't in data.json yet
+    return 0;
   };
 
   const consolidatedItems = placedItems.reduce((acc, item) => {
@@ -951,7 +976,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
 
           {/* Tabs */}
           <div className="flex gap-1 border-b border-slate-700 overflow-x-auto">
-            {['drills', 'refineries', 'totems', 'misc'].map(tab => (
+            {['drills', 'refineries', 'walls', 'totems', 'misc'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -1024,7 +1049,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
                 })}
               </>
             )}
-            {activeTab === 'refineries' && refineries && refineries.length > 0 ? refineries.map(refinery => (
+            {activeTab === 'refineries' && (refineries && refineries.length > 0 ? refineries.map(refinery => (
               <button
                 key={refinery.name || refinery.Name}
                 onClick={() => setSelectedDrill(refinery)}
@@ -1049,7 +1074,30 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
               </button>
             )) : (
               <p className="text-slate-400 text-sm py-4">No refineries loaded</p>
-            )}
+            ))}
+            {activeTab === 'walls' && (walls && walls.length > 0 ? walls.map((wall, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedWall(Number(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost) ?? 0)}
+                className={`w-full px-4 py-2 rounded transition text-left ${
+                  selectedWall === Number(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost)
+                    ? 'bg-blue-600'
+                    : 'bg-slate-700 hover:bg-slate-600'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 flex-1">
+                    <span className="text-lg">🧱</span>
+                    <div>
+                      <span className="block text-sm">{(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost) ?? 0}%</span>
+                    </div>
+                  </div>
+                  <span className="text-xs bg-purple-600 px-2 py-1 rounded text-white whitespace-nowrap ml-2">Wall</span>
+                </div>
+              </button>
+            )) : (
+              <p className="text-slate-400 text-sm py-4">No walls loaded</p>
+            ))}
             {activeTab === 'totems' && (
               <p className="text-slate-400 text-sm py-4">Totems coming soon...</p>
             )}
@@ -1090,19 +1138,93 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
         {/* Grid */}
         <div className="bg-slate-800 rounded-lg p-6 overflow-x-auto flex flex-col items-center">
           <h3 className="text-xl font-semibold mb-4">Base Layout</h3>
+          
+          {/* Walls Container with Grid Inside */}
           <div
-            ref={gridRef}
-            onClick={handleGridClick}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            className="relative border-2 border-slate-600 cursor-crosshair select-none inline-block"
             style={{
-              width: GRID_WIDTH * CELL_SIZE,
-              height: GRID_HEIGHT * CELL_SIZE,
-              background: '#1e293b',
+              position: 'relative',
+              width: GRID_WIDTH * CELL_SIZE + (WALL_THICKNESS + WALL_GAP) * 2,
+              height: GRID_HEIGHT * CELL_SIZE + (WALL_THICKNESS + WALL_GAP) * 2,
+              display: 'inline-block',
             }}
           >
+            {/* Top Wall */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: GRID_WIDTH * CELL_SIZE + (WALL_THICKNESS + WALL_GAP) * 2,
+                height: WALL_THICKNESS,
+                backgroundColor: wallColor,
+              }}
+            />
+            
+            {/* Left Wall */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: WALL_THICKNESS,
+                width: WALL_THICKNESS,
+                height: GRID_HEIGHT * CELL_SIZE + WALL_GAP * 2,
+                backgroundColor: wallColor,
+              }}
+            />
+            
+            {/* Right Wall */}
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: WALL_THICKNESS,
+                width: WALL_THICKNESS,
+                height: GRID_HEIGHT * CELL_SIZE + WALL_GAP * 2,
+                backgroundColor: wallColor,
+              }}
+            />
+            
+            {/* Bottom Wall - Left Side (before gap) */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                bottom: 0,
+                width: (GRID_WIDTH / 2 - 2.5) * CELL_SIZE + WALL_THICKNESS,
+                height: WALL_THICKNESS,
+                backgroundColor: wallColor,
+              }}
+            />
+            
+            {/* Bottom Wall - Right Side (after gap) */}
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                bottom: 0,
+                width: (GRID_WIDTH / 2 - 2.5) * CELL_SIZE + WALL_THICKNESS,
+                height: WALL_THICKNESS,
+                backgroundColor: wallColor,
+              }}
+            />
+            
+            {/* Actual Grid */}
+            <div
+              ref={gridRef}
+              onClick={handleGridClick}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              className="relative border-2 border-slate-600 cursor-crosshair select-none"
+              style={{
+                position: 'absolute',
+                left: WALL_THICKNESS + WALL_GAP,
+                top: WALL_THICKNESS + WALL_GAP,
+                width: GRID_WIDTH * CELL_SIZE,
+                height: GRID_HEIGHT * CELL_SIZE,
+                background: '#1e293b',
+              }}
+            >
             {Array.from({ length: GRID_HEIGHT }).map((_, row) =>
               Array.from({ length: GRID_WIDTH }).map((_, col) => {
                 const borderTop = row % 5 === 0 ? '2px solid rgba(0,0,0,0.8)' : '1px solid rgba(0,0,0,0.3)';
@@ -1186,14 +1308,15 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Production Stats */}
       <div className="bg-slate-800 rounded-lg p-6 space-y-4">
-        <h3 className="text-xl font-semibold">📊 Production Rate</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <h3 className="text-xl font-semibold">📊 Production Stats</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <div className="bg-slate-700 rounded p-4 flex flex-col">
             <p className="text-slate-400 text-sm mb-2">Pre-Boost Rate</p>
             <p className="text-slate-300 text-sm">Petrol/Second:</p>
@@ -1208,6 +1331,16 @@ export const LayoutDesigner = ({ drills = [], refineries = [] }) => {
             <p className="text-slate-400 text-sm mb-2">Total Storage</p>
             <p className="text-slate-300 text-sm">Capacity:</p>
             <p className="text-2xl font-bold text-orange-400">{calculateTotalStorage().toLocaleString()}</p>
+          </div>
+          <div className="bg-slate-700 rounded p-4 flex flex-col">
+            <p className="text-slate-400 text-sm mb-2">Wall Boost</p>
+            <p className="text-slate-300 text-sm">Cash Boost:</p>
+            <p className="text-2xl font-bold text-purple-400">{isNaN(selectedWall) ? 0 : selectedWall}%</p>
+          </div>
+          <div className="bg-slate-700 rounded p-4 flex flex-col">
+            <p className="text-slate-400 text-sm mb-2">Totem Boost</p>
+            <p className="text-slate-300 text-sm">Cash Boost:</p>
+            <p className="text-2xl font-bold text-pink-400">{calculateTotalTotemBoost()}%</p>
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ type Config struct {
 	BoostPercent     float64 `json:"boost_percent"`
 	CashPerUnit      float64 `json:"cash_per_unit"`
 	CurrentCashStr   string  `json:"current_cash_str"`
+	ActiveWall       string  `json:"active_wall"`
 }
 
 func configPath() string {
