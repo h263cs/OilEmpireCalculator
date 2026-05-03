@@ -93,8 +93,9 @@ export namespace main {
 	    rate_per_second: number;
 	    boost_percent: number;
 	    cash_per_unit: number;
-	    current_cash_str: string;
-	    active_wall: string;
+	    current_cash: number;
+	    active_wall_name: string;
+	    active_totems: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -105,8 +106,9 @@ export namespace main {
 	        this.rate_per_second = source["rate_per_second"];
 	        this.boost_percent = source["boost_percent"];
 	        this.cash_per_unit = source["cash_per_unit"];
-	        this.current_cash_str = source["current_cash_str"];
-	        this.active_wall = source["active_wall"];
+	        this.current_cash = source["current_cash"];
+	        this.active_wall_name = source["active_wall_name"];
+	        this.active_totems = source["active_totems"];
 	    }
 	}
 	export class Drill {
@@ -132,26 +134,6 @@ export namespace main {
 	    }
 	}
 	
-	export class PackDrill {
-	    name: string;
-	    drop_rate: number;
-	    rate: number;
-	    width: number;
-	    height: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new PackDrill(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.drop_rate = source["drop_rate"];
-	        this.rate = source["rate"];
-	        this.width = source["width"];
-	        this.height = source["height"];
-	    }
-	}
 	export class RefinerySize {
 	    width: number;
 	    height: number;
@@ -203,7 +185,48 @@ export namespace main {
 		}
 	}
 	
+	export class Totem {
+	    name: string;
+	    price: number;
+	    boost: number;
+	    width: number;
+	    height: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Totem(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.price = source["price"];
+	        this.boost = source["boost"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	    }
+	}
+	export class UpdateInfo {
+	    available: boolean;
+	    latest_version: string;
+	    current_version: string;
+	    release_url: string;
+	    release_notes: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.available = source["available"];
+	        this.latest_version = source["latest_version"];
+	        this.current_version = source["current_version"];
+	        this.release_url = source["release_url"];
+	        this.release_notes = source["release_notes"];
+	    }
+	}
 	export class Wall {
+	    name: string;
 	    price: number;
 	    cash_boost: number;
 	
@@ -213,6 +236,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
 	        this.price = source["price"];
 	        this.cash_boost = source["cash_boost"];
 	    }

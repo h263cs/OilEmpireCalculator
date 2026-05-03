@@ -1,4 +1,13 @@
+import { useState, useEffect } from 'react';
+import { GetVersion } from '../../wailsjs/go/main/App';
+
 export const About = () => {
+  const [version, setVersion] = useState('');
+
+  useEffect(() => {
+    GetVersion().then(setVersion).catch(() => {});
+  }, []);
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">ℹ️ About</h1>
@@ -24,7 +33,7 @@ export const About = () => {
 
       <div className="bg-slate-800 rounded-lg p-6 space-y-4">
         <h3 className="text-xl font-semibold">Version</h3>
-        <p className="text-slate-300">v0.2-beta.1</p>
+        <p className="text-slate-300">{version || '...'}</p>
       </div>
 
       <div className="bg-slate-800 rounded-lg p-6 space-y-4">

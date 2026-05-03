@@ -31,9 +31,10 @@ const DRILL_COLORS = {
   'Fusion Drill': '#E9FF5C',
   'Uranium Drill': '#00ff62',
   'Radium Drill': '#2b67ff',
+  'Palladium Drill': '#4c4c4c',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
-  'Mini Multi Drill': '#39FF14',
+  'Mini Multi Drill': '#A9A9A9',
   'Mini Diamond Drill': '#00D9FF',
   // Refineries
   'Basic Refinery': '#D4A574',
@@ -56,8 +57,18 @@ const DRILL_COLORS = {
   'Fusion Refinery': '#FF00FF',
   'Uranium Refinery': '#00be49',
   'Radium Refinery': '#6e97ff',
+  'Palladium Refinery': '#2a2a2a',
   // Walls
   'Base Walls': '#808080',
+  'Basic Wall': '#A0A0A0',
+  'Stone Wall': '#8B8B8B',
+  'Sand Stone Wall': '#C2B280',
+  'Ruby Wall': '#E90052',
+  'Slate Stone Wall': '#708090',
+  'Crystal Wall': '#BC13FE',
+  'Castle Wall': '#696969',
+  'Lava Wall': '#FF5722',
+  'Apex Wall': '#3f3f3f',
 };
 
 const getDarkerColor = (hex) => {
@@ -124,16 +135,26 @@ export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => 
   const [editingName, setEditingName] = useState('');
   const [currentSlot, setCurrentSlot] = useState(0);
   const [savedFeedback, setSavedFeedback] = useState(false);
-  const [selectedWall, setSelectedWall] = useState(0);
-
-  // Update selected wall when walls change
-  useEffect(() => {
-    if (walls && walls.length > 0) {
-      const cashBoostValue = walls[0].cashBoost !== undefined ? walls[0].cashBoost : walls[0].CashBoost;
-      const numValue = !isNaN(Number(cashBoostValue)) ? Number(cashBoostValue) : 0;
-      setSelectedWall(numValue);
+  const [selectedWallName, setSelectedWallNameState] = useState(() => {
+    const saved = localStorage.getItem('oilEmpireLayout_slots');
+    if (saved) {
+      try {
+        return JSON.parse(saved)[0]?.wallName || '';
+      } catch (e) {
+        return '';
+      }
     }
-  }, [walls]);
+    return '';
+  });
+  const selectedWall = walls?.find(w => w.name === selectedWallName) ?? null;
+
+  const setSlotWall = (wallName, slotIndex = currentSlot) => {
+    setSelectedWallNameState(wallName);
+    const updatedSlots = [...saveSlots];
+    updatedSlots[slotIndex] = { ...updatedSlots[slotIndex], wallName };
+    setSaveSlots(updatedSlots);
+    localStorage.setItem('oilEmpireLayout_slots', JSON.stringify(updatedSlots));
+  };
   const [showCustomDrill, setShowCustomDrill] = useState(false);
   const [customDrills, setCustomDrills] = useState(() => {
     // Use sessionStorage so custom drills persist during page navigation but reset on app close
@@ -166,7 +187,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => 
   const allDrills = [...(drills || []), ...customDrills];
 
   // Get wall color from DRILL_COLORS (like drills and refineries)
-  const wallColor = DRILL_COLORS['Base Walls'] || '#808080';
+  const wallColor = selectedWall ? (DRILL_COLORS[selectedWall.name] || '#808080') : '#808080';
 
   // Auto-save layout whenever placedItems changes
   useEffect(() => {
@@ -183,6 +204,7 @@ export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => 
   const loadSlot = (slotIndex) => {
     const savedLayout = localStorage.getItem(`oilEmpireLayout_slot_${slotIndex}`);
     setCurrentSlot(slotIndex);
+    setSelectedWallNameState(saveSlots[slotIndex]?.wallName || '');
     if (savedLayout) {
       try {
         setPlacedItems(JSON.parse(savedLayout));
@@ -1078,18 +1100,21 @@ export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => 
             {activeTab === 'walls' && (walls && walls.length > 0 ? walls.map((wall, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedWall(Number(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost) ?? 0)}
-                className={`w-full px-4 py-2 rounded transition text-left ${
-                  selectedWall === Number(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost)
-                    ? 'bg-blue-600'
-                    : 'bg-slate-700 hover:bg-slate-600'
+                onClick={() => setSlotWall(wall.name)}
+                className={`w-full px-4 py-2 rounded transition text-left border-2 ${
+                  selectedWallName === wall.name
+                    ? 'bg-green-900 border-green-400 text-green-300'
+                    : 'bg-slate-700 border-slate-600 hover:border-slate-500 text-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-1">
                     <span className="text-lg">🧱</span>
                     <div>
-                      <span className="block text-sm">{(wall.cashBoost !== undefined ? wall.cashBoost : wall.CashBoost) ?? 0}%</span>
+                      <span className="block text-sm">{wall.name}</span>
+                      <span className="text-xs text-slate-400">
+                        +{wall.cash_boost ?? 0}% boost
+                      </span>
                     </div>
                   </div>
                   <span className="text-xs bg-purple-600 px-2 py-1 rounded text-white whitespace-nowrap ml-2">Wall</span>
@@ -1334,8 +1359,8 @@ export const LayoutDesigner = ({ drills = [], refineries = [], walls = [] }) => 
           </div>
           <div className="bg-slate-700 rounded p-4 flex flex-col">
             <p className="text-slate-400 text-sm mb-2">Wall Boost</p>
-            <p className="text-slate-300 text-sm">Cash Boost:</p>
-            <p className="text-2xl font-bold text-purple-400">{isNaN(selectedWall) ? 0 : selectedWall}%</p>
+            <p className="text-slate-300 text-sm">{selectedWall?.name || 'None'}</p>
+            <p className="text-2xl font-bold text-purple-400">+{selectedWall?.cash_boost ?? 0}%</p>
           </div>
           <div className="bg-slate-700 rounded p-4 flex flex-col">
             <p className="text-slate-400 text-sm mb-2">Totem Boost</p>

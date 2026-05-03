@@ -30,8 +30,8 @@ export function CalculateProduction(arg1, arg2, arg3) {
   return window['go']['main']['App']['CalculateProduction'](arg1, arg2, arg3);
 }
 
-export function CheckForUpdates() {
-  return window['go']['main']['App']['CheckForUpdates']();
+export function CheckForUpdate() {
+  return window['go']['main']['App']['CheckForUpdate']();
 }
 
 export function FormatDuration(arg1) {
@@ -50,6 +50,10 @@ export function GetAllRefineries() {
   return window['go']['main']['App']['GetAllRefineries']();
 }
 
+export function GetAllTotems() {
+  return window['go']['main']['App']['GetAllTotems']();
+}
+
 export function GetAllWalls() {
   return window['go']['main']['App']['GetAllWalls']();
 }
@@ -66,8 +70,12 @@ export function GetPackDrills(arg1) {
   return window['go']['main']['App']['GetPackDrills'](arg1);
 }
 
-export function GetRefinery(arg1) {
-  return window['go']['main']['App']['GetRefinery'](arg1);
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
+}
+
+export function OpenURL(arg1) {
+  return window['go']['main']['App']['OpenURL'](arg1);
 }
 
 export function ParseLargeNumber(arg1) {
@@ -78,6 +86,6 @@ export function SaveConfig(arg1) {
   return window['go']['main']['App']['SaveConfig'](arg1);
 }
 
-export function UpdateConfig(arg1, arg2, arg3, arg4) {
-  return window['go']['main']['App']['UpdateConfig'](arg1, arg2, arg3, arg4);
+export function UpdateConfig(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['UpdateConfig'](arg1, arg2, arg3, arg4, arg5);
 }

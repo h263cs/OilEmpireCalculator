@@ -23,6 +23,7 @@
     { "name": "Fusion Drill", "price": 187500000000, "rate": 7500, "width": 2, "height": 2 },
     { "name": "Uranium Drill", "price": 437500000000, "rate": 12500, "width": 2, "height": 2 },
     { "name": "Radium Drill", "price": 810000000000, "rate": 18000, "width": 2, "height": 2 },
+    { "name": "Palladium Drill", "price": 1200000000000, "rate": 25000, "width": 2, "height": 2 },
     { "name": "Quantum Drill", "drop_rate": 10, "rate": 175, "width": 2, "height": 1 },
     { "name": "Mini Ruby Drill", "drop_rate": 45, "rate": 67, "width": 1, "height": 1 },
     { "name": "Mini Multi Drill", "drop_rate": 1, "rate": 250, "width": 2, "height": 1 },
@@ -62,13 +63,29 @@
     { "name": "Ruby Refinery", "price": 50000000000, "storage": 5000000, "width": 2, "height": 2 },
     { "name": "Fusion Refinery", "price": 285000000000, "storage": 15000000, "width": 2, "height": 2 },
     { "name": "Uranium Refinery", "price": 625000000000, "storage": 25000000, "width": 2, "height": 2 },
-    { "name": "Radium Refinery", "price": 1100000000000, "storage": 35000000, "width": 2, "height": 2 }
+    { "name": "Radium Refinery", "price": 1100000000000, "storage": 35000000, "width": 2, "height": 2 },
+    { "name": "Palladium Refinery", "price": 2000000000000, "storage": 50000000, "width": 2, "height": 2 }
   ],
   "totems": [
-    { "name": "Example Totem", "price": 5000, "effect": "boost", "width": 1, "height": 1 }
+    { "name": "Wooden Totem", "price": 5000, "boost": 5, "width": 1, "height": 1 },
+    { "name": "Stone Totem", "price": 5000, "boost": 10, "width": 1, "height": 1 },
+    { "name": "Copper Totem", "price": 5000, "boost": 20, "width": 1, "height": 1 },
+    { "name": "Golden Totem", "price": 5000, "boost": 25, "width": 1, "height": 1 },
+    { "name": "Diamond Totem", "price": 5000, "boost": 50, "width": 1, "height": 1 },
+    { "name": "Ruby Totem", "price": 5000, "boost": 75, "width": 1, "height": 1 },
+    { "name": "Crystal Totem", "price": 5000, "boost": 100, "width": 1, "height": 1 },
+    { "name": "Glitch Totem", "price": 5000, "boost": 50, "width": 1, "height": 1 }
   ],
   "walls": [
-    { "price": 0, "cash_boost": 0 }
+    { "name": "Basic Wall", "price": 0, "cash_boost": 0 },
+    { "name": "Stone Wall", "price": 0, "cash_boost": 10 },
+    { "name": "Sand Stone Wall", "price": 0, "cash_boost": 20 },
+    { "name": "Ruby Wall", "price": 0, "cash_boost": 25 },
+    { "name": "Slate Stone Wall", "price": 0, "cash_boost": 30 },
+    { "name": "Crystal Wall", "price": 0, "cash_boost": 35 },
+    { "name": "Castle Wall", "price": 0, "cash_boost": 40 },
+    { "name": "Lava Wall", "price": 0, "cash_boost": 45 },
+    { "name": "Apex Wall", "price": 990000000000, "cash_boost": 50 }
   ],
   "misc": [
     { "name": "Example Item", "price": 2000, "effect": "utility", "width": 1, "height": 1 }

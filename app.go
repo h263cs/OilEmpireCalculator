@@ -2,20 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io"
-	"net/http"
+	"fmt"
+	"math"
 	"strings"
 	"sync"
 )
-
-const AppVersion = "v0.2-beta.7"
-
-type Release struct {
-	TagName string `json:"tag_name"`
-	HtmlUrl string `json:"html_url"`
-	Body    string `json:"body"`
-}
 
 type App struct {
 	ctx    context.Context
@@ -62,11 +53,12 @@ func (a *App) SaveConfig(cfg Config) error {
 	return saveConfig(cfg)
 }
 
-func (a *App) UpdateConfig(ratePerSecond, cashPerUnit, boostPercent, currentCash float64) error {
+func (a *App) UpdateConfig(ratePerSecond, cashPerUnit, boostPercent, currentCash float64, activeWallName string) error {
 	a.config.RatePerSecond = ratePerSecond
 	a.config.CashPerUnit = cashPerUnit
 	a.config.BoostPercent = boostPercent
-	a.config.CurrentCashStr = formatLarge(currentCash)
+	a.config.CurrentCash = currentCash
+	a.config.ActiveWallName = activeWallName
 	return saveConfig(a.config)
 }
 
@@ -74,52 +66,15 @@ func (a *App) GetDrill(name string) Drill { return GetDrill(name) }
 
 func (a *App) GetAllDrills() []Drill { return Drills }
 
-func (a *App) GetRefinery(name string) Refinery { return GetRefinery(name) }
-
 func (a *App) GetAllRefineries() []Refinery { return Refineries }
 
-func (a *App) GetAllWalls() []Wall { return Walls }
+func (a *App) GetAllWalls() []Wall { return GetAllWalls() }
 
-func (a *App) ParseLargeNumber(input string) (float64, error) {
-	return parseLargeNumber(input)
-}
+func (a *App) GetAllTotems() []Totem { return GetAllTotems() }
 
-func (a *App) CheckForUpdates() map[string]interface{} {
-	result := map[string]interface{}{
-		"hasUpdate": false,
-		"version":   AppVersion,
-	}
-
-	// Fetch latest release from GitHub API
-	resp, err := http.Get("https://api.github.com/repos/h263cs/OilEmpireCalculator/releases/latest")
-	if err != nil {
-		result["error"] = "Failed to check for updates"
-		return result
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		result["error"] = "Failed to read response"
-		return result
-	}
-
-	var release Release
-	err = json.Unmarshal(body, &release)
-	if err != nil {
-		result["error"] = "Failed to parse release data"
-		return result
-	}
-
-	// Compare versions (simple string comparison since they're in v0.2-beta.X format)
-	if strings.TrimPrefix(release.TagName, "v") > strings.TrimPrefix(AppVersion, "v") {
-		result["hasUpdate"] = true
-		result["newVersion"] = release.TagName
-		result["downloadUrl"] = release.HtmlUrl
-		result["releaseNotes"] = release.Body
-	}
-
-	return result
+func (a *App) ParseLargeNumber(input string) float64 {
+	num, _ := parseLargeNumber(input)
+	return num
 }
 
 func (a *App) FormatLarge(num float64) string {
@@ -312,14 +267,85 @@ func (a *App) BatchCalculate(params BatchCalculateParams) BatchCalculationResult
 	return result
 }
 
-func (a *App) GetPackDrills(packType string) []PackDrill {
-	return GetPackDrills(packType)
+// Pack-related methods
+func (a *App) GetPackDrills(packType string) []map[string]interface{} {
+	// Return pack drills (Quantum, Mini Ruby, Mini Multi, Mini Diamond)
+	packs := map[string][]Drill{
+		"infinity": {
+			{Name: "Quantum Drill", DropRate: 10, Rate: 175, Width: 2, Height: 1},
+			{Name: "Mini Ruby Drill", DropRate: 45, Rate: 67, Width: 1, Height: 1},
+			{Name: "Plasma Drill", DropRate: 45, Rate: 50, Width: 1, Height: 1},
+		},
+		"rainbow": {
+			{Name: "Quantum Drill", DropRate: 30, Rate: 175, Width: 2, Height: 1},
+			{Name: "Mini Ruby Drill", DropRate: 30, Rate: 67, Width: 1, Height: 1},
+			{Name: "Plasma Drill", DropRate: 35, Rate: 50, Width: 1, Height: 1},
+			{Name: "Mini Multi Drill", DropRate: 1, Rate: 250, Width: 2, Height: 1},
+			{Name: "Mini Diamond Drill", DropRate: 5, Rate: 100, Width: 1, Height: 1},
+		},
+	}
+
+	drills := packs[packType]
+	result := make([]map[string]interface{}, len(drills))
+	for i, d := range drills {
+		result[i] = map[string]interface{}{
+			"name":      d.Name,
+			"drop_rate": d.DropRate,
+			"rate":      d.Rate,
+			"width":     d.Width,
+			"height":    d.Height,
+		}
+	}
+	return result
 }
 
 func (a *App) CalculatePacksNeeded99Confidence(targetQuantity, dropRate float64) int {
-	return CalculatePacksNeeded99Confidence(targetQuantity, dropRate)
+	if dropRate <= 0 || targetQuantity <= 0 {
+		return 0
+	}
+	p := dropRate / 100.0
+	q := 1.0 - p
+	const z = 2.326 // 99% one-tailed z-score
+	b := z * math.Sqrt(p*q)
+	c := targetQuantity - 0.5
+	u := (b + math.Sqrt(b*b+4*p*c)) / (2 * p)
+	return int(math.Ceil(u * u))
 }
 
 func (a *App) CalculateBulkRainbowPackCost(packCount int) map[string]interface{} {
-	return CalculateBulkRainbowPackCost(packCount)
+	const (
+		bulk8Price  = 1399
+		triplePrice = 569
+		singlePrice = 229
+	)
+
+	bulk8 := packCount / 8
+	remaining := packCount % 8
+	triple := remaining / 3
+	single := remaining % 3
+
+	totalCost := bulk8*bulk8Price + triple*triplePrice + single*singlePrice
+
+	parts := []string{}
+	if bulk8 > 0 {
+		parts = append(parts, fmt.Sprintf("%d × 8-pack (%d R)", bulk8, bulk8*bulk8Price))
+	}
+	if triple > 0 {
+		parts = append(parts, fmt.Sprintf("%d × 3-pack (%d R)", triple, triple*triplePrice))
+	}
+	if single > 0 {
+		parts = append(parts, fmt.Sprintf("%d × 1-pack (%d R)", single, single*singlePrice))
+	}
+	breakdown := strings.Join(parts, " + ")
+
+	return map[string]interface{}{
+		"pack_count": packCount,
+		"total_cost": totalCost,
+		"breakdown":  breakdown,
+		"packs": map[string]interface{}{
+			"bulk_8": bulk8,
+			"triple": triple,
+			"single": single,
+		},
+	}
 }

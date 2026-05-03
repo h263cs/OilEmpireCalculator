@@ -16,7 +16,7 @@ export function CalculatePacksNeeded99Confidence(arg1:number,arg2:number):Promis
 
 export function CalculateProduction(arg1:number,arg2:number,arg3:number):Promise<main.CalculationResult>;
 
-export function CheckForUpdates():Promise<Record<string, any>>;
+export function CheckForUpdate():Promise<main.UpdateInfo>;
 
 export function FormatDuration(arg1:number):Promise<string>;
 
@@ -26,18 +26,22 @@ export function GetAllDrills():Promise<Array<main.Drill>>;
 
 export function GetAllRefineries():Promise<Array<main.Refinery>>;
 
+export function GetAllTotems():Promise<Array<main.Totem>>;
+
 export function GetAllWalls():Promise<Array<main.Wall>>;
 
 export function GetConfig():Promise<main.Config>;
 
 export function GetDrill(arg1:string):Promise<main.Drill>;
 
-export function GetPackDrills(arg1:string):Promise<Array<main.PackDrill>>;
+export function GetPackDrills(arg1:string):Promise<Array<Record<string, any>>>;
 
-export function GetRefinery(arg1:string):Promise<main.Refinery>;
+export function GetVersion():Promise<string>;
+
+export function OpenURL(arg1:string):Promise<void>;
 
 export function ParseLargeNumber(arg1:string):Promise<number>;
 
 export function SaveConfig(arg1:main.Config):Promise<void>;
 
-export function UpdateConfig(arg1:number,arg2:number,arg3:number,arg4:number):Promise<void>;
+export function UpdateConfig(arg1:number,arg2:number,arg3:number,arg4:number,arg5:string):Promise<void>;

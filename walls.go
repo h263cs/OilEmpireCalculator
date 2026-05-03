@@ -5,6 +5,7 @@ import (
 )
 
 type Wall struct {
+	Name      string  `json:"name"`
 	Price     int     `json:"price"`
 	CashBoost float64 `json:"cash_boost"`
 }
@@ -28,6 +29,11 @@ func LoadWalls() error {
 
 	Walls = []Wall{}
 	for _, wallData := range gameData.Walls {
+		var name string
+		if n, ok := wallData["name"]; ok && n != nil {
+			name = n.(string)
+		}
+
 		var price int
 		if p, ok := wallData["price"]; ok && p != nil {
 			price = int(p.(float64))
@@ -39,6 +45,7 @@ func LoadWalls() error {
 		}
 
 		wall := Wall{
+			Name:      name,
 			Price:     price,
 			CashBoost: cashBoost,
 		}

@@ -16,11 +16,12 @@ import (
 const configFile = "config.json"
 
 type Config struct {
-	RatePerSecond    float64 `json:"rate_per_second"`
-	BoostPercent     float64 `json:"boost_percent"`
-	CashPerUnit      float64 `json:"cash_per_unit"`
-	CurrentCashStr   string  `json:"current_cash_str"`
-	ActiveWall       string  `json:"active_wall"`
+	RatePerSecond  float64  `json:"rate_per_second"`
+	BoostPercent   float64  `json:"boost_percent"`
+	CashPerUnit    float64  `json:"cash_per_unit"`
+	CurrentCash    float64  `json:"current_cash"`
+	ActiveWallName string   `json:"active_wall_name"`
+	ActiveTotems   []string `json:"active_totems"`
 }
 
 func configPath() string {
