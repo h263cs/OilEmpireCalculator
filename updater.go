@@ -9,7 +9,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-const Version = "v0.3-beta.1"
+const Version = "v0.3-beta.2"
 
 const githubRepo = "h263cs/OilEmpireCalculator"
 
