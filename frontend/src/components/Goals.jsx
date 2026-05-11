@@ -9,12 +9,14 @@ export const Goals = ({
   goalAmount, setGoalAmount,
 }) => {
   const [drillTime, setDrillTime] = useState('—');
+  const [drillTotalCost, setDrillTotalCost] = useState(null);
   const [goalTime, setGoalTime] = useState('—');
 
   useEffect(() => {
     const calc = async () => {
       const time = await calculateDrillTime(rate, currentCash, cashPerUnit, boost, drillSelections, drills);
       setDrillTime(time.time_left);
+      setDrillTotalCost(time.total_cost > 0 ? time.total_cost : null);
     };
     calc();
   }, [rate, currentCash, cashPerUnit, boost, drillSelections, drills]);
@@ -103,8 +105,11 @@ export const Goals = ({
             + New Drill
           </button>
         </div>
-        <div className="bg-slate-700 rounded p-3">
+        <div className="bg-slate-700 rounded p-3 flex flex-wrap gap-6">
           <label className="text-slate-300">Time to afford: <span className="font-bold text-blue-400">{drillTime}</span></label>
+          {drillTotalCost !== null && (
+            <label className="text-slate-300">Total cost: <span className="font-bold text-green-400">${formatLargeSync(drillTotalCost)}</span></label>
+          )}
         </div>
       </div>
 
