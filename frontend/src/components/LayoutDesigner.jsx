@@ -32,6 +32,7 @@ const DRILL_COLORS = {
   'Uranium Drill': '#00ff62',
   'Radium Drill': '#2b67ff',
   'Palladium Drill': '#4c4c4c',
+  'Thorium Drill': '#ffb44b',
   'Quantum Drill': '#6B5FFF',
   'Mini Ruby Drill': '#800020',
   'Mini Multi Drill': '#A9A9A9',
@@ -58,6 +59,7 @@ const DRILL_COLORS = {
   'Uranium Refinery': '#00be49',
   'Radium Refinery': '#6e97ff',
   'Palladium Refinery': '#2a2a2a',
+  'Thorium Refinery': '#ae663a',
   // Walls
   'Base Walls': '#808080',
   'Basic Wall': '#A0A0A0',

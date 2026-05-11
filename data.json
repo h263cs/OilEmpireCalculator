@@ -24,6 +24,7 @@
     { "name": "Uranium Drill", "price": 437500000000, "rate": 12500, "width": 2, "height": 2 },
     { "name": "Radium Drill", "price": 810000000000, "rate": 18000, "width": 2, "height": 2 },
     { "name": "Palladium Drill", "price": 1200000000000, "rate": 25000, "width": 2, "height": 2 },
+    { "name": "Thorium Drill", "price": 2100000000000, "rate": 37500, "width": 2, "height": 2 },
     { "name": "Quantum Drill", "drop_rate": 10, "rate": 175, "width": 2, "height": 1 },
     { "name": "Mini Ruby Drill", "drop_rate": 45, "rate": 67, "width": 1, "height": 1 },
     { "name": "Mini Multi Drill", "drop_rate": 1, "rate": 250, "width": 2, "height": 1 },
@@ -64,7 +65,8 @@
     { "name": "Fusion Refinery", "price": 285000000000, "storage": 15000000, "width": 2, "height": 2 },
     { "name": "Uranium Refinery", "price": 625000000000, "storage": 25000000, "width": 2, "height": 2 },
     { "name": "Radium Refinery", "price": 1100000000000, "storage": 35000000, "width": 2, "height": 2 },
-    { "name": "Palladium Refinery", "price": 2000000000000, "storage": 50000000, "width": 2, "height": 2 }
+    { "name": "Palladium Refinery", "price": 2000000000000, "storage": 50000000, "width": 2, "height": 2 },
+    { "name": "Thorium Refinery", "price": 3400000000000, "storage": 75000000, "width": 2, "height": 2 }
   ],
   "totems": [
     { "name": "Wooden Totem", "price": 5000, "boost": 5, "width": 1, "height": 1 },
