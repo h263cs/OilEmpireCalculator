@@ -67,9 +67,13 @@ func isNewerVersion(latest, current string) bool {
 	latest = strings.TrimPrefix(latest, "v")
 	current = strings.TrimPrefix(current, "v")
 
-	var l, c [3]int
-	fmt.Sscanf(latest, "%d.%d.%d", &l[0], &l[1], &l[2])
-	fmt.Sscanf(current, "%d.%d.%d", &c[0], &c[1], &c[2])
+	// Split main version from pre-release suffix (e.g. "0.3-beta.2" → ["0.3", "beta.2"])
+	lParts := strings.SplitN(latest, "-", 2)
+	cParts := strings.SplitN(current, "-", 2)
+
+	var l, c [2]int
+	fmt.Sscanf(lParts[0], "%d.%d", &l[0], &l[1])
+	fmt.Sscanf(cParts[0], "%d.%d", &c[0], &c[1])
 
 	for i := range l {
 		if l[i] > c[i] {
@@ -79,5 +83,33 @@ func isNewerVersion(latest, current string) bool {
 			return false
 		}
 	}
-	return false
+
+	// Same main version — a full release beats a pre-release
+	lHasPre := len(lParts) > 1
+	cHasPre := len(cParts) > 1
+	if !lHasPre && cHasPre {
+		return true
+	}
+	if lHasPre && !cHasPre {
+		return false
+	}
+	if !lHasPre {
+		return false
+	}
+
+	// Both are pre-releases: compare the trailing number (e.g. "beta.2" vs "beta.1")
+	var lPre, cPre int
+	lLabel, cLabel := lParts[1], cParts[1]
+	if idx := strings.LastIndex(lLabel, "."); idx >= 0 {
+		fmt.Sscanf(lLabel[idx+1:], "%d", &lPre)
+		lLabel = lLabel[:idx]
+	}
+	if idx := strings.LastIndex(cLabel, "."); idx >= 0 {
+		fmt.Sscanf(cLabel[idx+1:], "%d", &cPre)
+		cLabel = cLabel[:idx]
+	}
+	if lLabel != cLabel {
+		return false // different pre-release labels, can't compare
+	}
+	return lPre > cPre
 }
